@@ -1,0 +1,73 @@
+/* =============================================
+   Sistema Botica - Estilos personalizados
+   ============================================= */
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 0.9rem;
+}
+
+/* Navbar */
+.navbar-brand {
+    font-size: 1.1rem;
+    letter-spacing: 0.3px;
+}
+
+/* Cards */
+.card {
+    border-radius: 10px;
+}
+
+/* Tables */
+.table th {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #6c757d;
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+}
+
+/* Form controls */
+.form-label {
+    font-size: 0.82rem;
+    color: #495057;
+}
+
+/* Sidebar active link */
+.nav-link.active {
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+}
+
+/* Alert auto-dismiss animation */
+.alert {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Foto en tabla de productos */
+.product-img {
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+/* Carrito de ventas */
+#carritoBody tr td {
+    vertical-align: middle;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 0.75rem;
+    }
+}

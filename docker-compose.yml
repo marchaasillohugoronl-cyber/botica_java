@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+
+  # Base de datos MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: botica-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secreto_123
+      MYSQL_DATABASE: boticadb
+      MYSQL_USER: botica_user
+      MYSQL_PASSWORD: botica_pass_123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "botica_user", "-pbotica_pass_123"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Aplicacion Spring Boot
+  botica:
+    build: .
+    container_name: botica-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/boticadb?useSSL=false&serverTimezone=America/Lima&characterEncoding=utf8&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: botica_user
+      SPRING_DATASOURCE_PASSWORD: botica_pass_123
+      SUNAT_RUC: "20000000001"
+      SUNAT_RAZON-SOCIAL: "BOTICA SALUD S.A.C."
+      SUNAT_MODO: beta
+    volumes:
+      - uploads_data:/opt/botica/uploads
+      - logs_data:/opt/botica/logs
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  mysql_data:
+  uploads_data:
+  logs_data:

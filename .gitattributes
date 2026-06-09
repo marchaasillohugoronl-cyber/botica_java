@@ -1,0 +1,13 @@
+# Forzar LF en Linux/Mac para que el build de Render funcione
+* text=auto
+*.java text eol=lf
+*.xml text eol=lf
+*.properties text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+Dockerfile text eol=lf
+render.yaml text eol=lf

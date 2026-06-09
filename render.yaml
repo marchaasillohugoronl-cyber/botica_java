@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: botica-sistema
+    runtime: docker
+    plan: free
+    healthCheckPath: /login
+    dockerfilePath: ./Dockerfile
+    envVars:
+      # ── Base de datos Neon (pegar desde el panel de Neon) ──────────────────
+      # Formato: jdbc:postgresql://ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://ep-soft-wave-aqhj09gp-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require
+
+      - key: SPRING_DATASOURCE_USERNAME
+        value: neondb_owner
+
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+
+      # ── SUNAT ─────────────────────────────────────────────────────────────
+      - key: SUNAT_RUC
+        sync: false
+      - key: SUNAT_RAZON_SOCIAL
+        sync: false
+      - key: SUNAT_USUARIO_SOL
+        sync: false
+      - key: SUNAT_CLAVE_SOL
+        sync: false
+      - key: SUNAT_MODO
+        value: beta         # cambiar a "produccion" cuando tengas certificado digital
+
+      # ── Cloudinary - almacenamiento de fotos (gratis: 25GB) ───────────────
+      # Obtener en cloudinary.com/console → API Keys
+      # Formato: cloudinary://api_key:api_secret@cloud_name
+      - key: CLOUDINARY_URL
+        sync: false
+
+      # ── Spring ────────────────────────────────────────────────────────────
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: JAVA_TOOL_OPTIONS
+        value: "-Xmx400m"
