@@ -6,6 +6,7 @@ import com.botica.model.Venta;
 import com.botica.service.ServicioCategorias;
 import com.botica.service.ServicioProductos;
 import com.botica.service.ServicioVentas;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +23,21 @@ public class ControladorVentas {
     private final ServicioVentas servicioVentas;
     private final ServicioProductos servicioProductos;
     private final ServicioCategorias servicioCategorias;
+
+    @Value("${sunat.ruc}")
+    private String sunatRuc;
+
+    @Value("${sunat.razon-social}")
+    private String sunatRazonSocial;
+
+    @Value("${sunat.direccion}")
+    private String sunatDireccion;
+
+    @Value("${sunat.distrito}")
+    private String sunatDistrito;
+
+    @Value("${sunat.provincia}")
+    private String sunatProvincia;
 
     public ControladorVentas(ServicioVentas servicioVentas, ServicioProductos servicioProductos,
                               ServicioCategorias servicioCategorias) {
@@ -54,6 +70,11 @@ public class ControladorVentas {
         Venta venta = servicioVentas.buscarPorId(id);
         model.addAttribute("venta", venta);
         model.addAttribute("comprobante", venta.getComprobante());
+        model.addAttribute("sunatRuc", sunatRuc);
+        model.addAttribute("sunatRazonSocial", sunatRazonSocial);
+        model.addAttribute("sunatDireccion", sunatDireccion);
+        model.addAttribute("sunatDistrito", sunatDistrito);
+        model.addAttribute("sunatProvincia", sunatProvincia);
         return "sales/invoice";
     }
 
@@ -101,7 +122,8 @@ public class ControladorVentas {
                     : "SIN COMPROBANTE"
             ));
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+            String msg = e.getMessage() != null ? e.getMessage() : "Error interno al procesar la venta";
+            return ResponseEntity.internalServerError().body(Map.of("error", msg));
         }
     }
 }

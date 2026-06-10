@@ -6,171 +6,136 @@
 <body>
 <section>
 
-    <!-- ── Encabezado de página ──────────────────────────────── -->
-    <div class="page-header">
-        <div>
-            <h1 class="page-title mb-0">
-                <i class="bi bi-house-fill"></i> Inicio
-            </h1>
-            <p class="text-muted mb-0 mt-1" style="font-size:.78rem;letter-spacing:.2px"
-               th:text="${appConfig?.farmaciaName ?: 'Botica Salud'} + ' — ' + ${appConfig?.farmaciaSubtitle ?: 'Sistema de Gestión Farmacéutico'}">
-            </p>
+    <!-- ── Hero / Saludo ─────────────────────────────────────── -->
+    <div class="dash-hero mb-4" id="dashHero">
+        <div class="dh-icon-wrap">
+            <i class="bi bi-capsule-pill"></i>
         </div>
-        <div class="d-flex align-items-center gap-3">
-            <div class="dash-date d-none d-sm-block">
-                <i class="bi bi-calendar3 me-1 text-muted"></i>
-                <span th:text="${#temporals.format(#temporals.createNow(), 'EEEE, dd MMMM yyyy')}"></span>
+        <div class="dh-left">
+            <div class="dh-greet" id="dashGreet">Buenos días</div>
+            <div class="dh-name"><span sec:authentication="name">Admin</span></div>
+            <div class="dh-sub"
+                 th:text="${appConfig?.farmaciaName ?: 'Botica Salud'} + ' — ' + (${appConfig?.farmaciaSubtitle} ?: 'Sistema de Gestión Farmacéutico')">
             </div>
-            <a th:href="@{/ventas/nueva}" class="btn btn-primary btn-sm d-none d-md-inline-flex gap-2 align-items-center">
-                <i class="bi bi-cart-plus"></i> Nueva Venta
+        </div>
+        <div class="dh-right">
+            <div class="dh-clock-box d-none d-md-block">
+                <div class="dh-time" id="dashTime">--:--</div>
+                <div class="dh-date"
+                     th:text="${#temporals.format(#temporals.createNow(), 'EEEE, dd MMMM yyyy')}"></div>
+            </div>
+            <a th:href="@{/ventas/nueva}" class="btn dh-btn">
+                <i class="bi bi-cart-plus me-2"></i>Nueva Venta
             </a>
         </div>
+        <button class="dh-close" onclick="dismissHero()" title="Cerrar">
+            <i class="bi bi-x-lg"></i>
+        </button>
     </div>
 
-    <!-- ── KPI Cards (estilo empresarial) ───────────────────── -->
+    <!-- ── KPI Cards ─────────────────────────────────────────── -->
     <div class="row g-3 mb-4">
 
-        <!-- Productos activos -->
         <div class="col-6 col-xl-3">
-            <div class="kpi-card" style="--kc:#3b82f6">
+            <a th:href="@{/productos}" class="kpi-card kpi-blue text-decoration-none">
+                <div class="kpi-icon"><i class="bi bi-box-seam"></i></div>
                 <div class="kpi-body">
-                    <div class="kpi-label">Productos activos</div>
-                    <div class="kpi-value" th:text="${totalProductos}">0</div>
-                    <div class="kpi-foot">
-                        <i class="bi bi-circle-fill kpi-dot"></i> En inventario
-                    </div>
+                    <div class="kpi-val" th:text="${totalProductos}">0</div>
+                    <div class="kpi-lbl">Productos activos</div>
                 </div>
-                <i class="bi bi-box-seam kpi-wm"></i>
-            </div>
+            </a>
         </div>
 
-        <!-- Ventas hoy -->
         <div class="col-6 col-xl-3">
-            <div class="kpi-card" style="--kc:#10b981">
+            <a th:href="@{/ventas}" class="kpi-card kpi-green text-decoration-none">
+                <div class="kpi-icon"><i class="bi bi-receipt-cutoff"></i></div>
                 <div class="kpi-body">
-                    <div class="kpi-label">Ventas hoy</div>
-                    <div class="kpi-value" th:text="${ventasHoy}">0</div>
-                    <div class="kpi-foot">
-                        <i class="bi bi-circle-fill kpi-dot"></i> Transacciones
-                    </div>
+                    <div class="kpi-val" th:text="${ventasHoy}">0</div>
+                    <div class="kpi-lbl">Ventas hoy</div>
                 </div>
-                <i class="bi bi-receipt-cutoff kpi-wm"></i>
-            </div>
+            </a>
         </div>
 
-        <!-- Total hoy -->
         <div class="col-6 col-xl-3">
-            <div class="kpi-card" style="--kc:#0891b2">
+            <div class="kpi-card kpi-teal">
+                <div class="kpi-icon"><i class="bi bi-cash-stack"></i></div>
                 <div class="kpi-body">
-                    <div class="kpi-label">Total hoy</div>
-                    <div class="kpi-value">
+                    <div class="kpi-val">
                         S/<span th:text="${#numbers.formatDecimal(totalHoy ?: 0, 1, 2)}">0.00</span>
                     </div>
-                    <div class="kpi-foot">
-                        <i class="bi bi-circle-fill kpi-dot"></i> Ingresos del día
-                    </div>
+                    <div class="kpi-lbl">Ingresos del día</div>
                 </div>
-                <i class="bi bi-cash-stack kpi-wm"></i>
             </div>
         </div>
 
-        <!-- Stock bajo -->
         <div class="col-6 col-xl-3">
-            <div class="kpi-card" th:style="${stockBajo > 0} ? '--kc:#d97706' : '--kc:#10b981'">
+            <a th:href="@{/productos}" class="kpi-card text-decoration-none"
+               th:classappend="${stockBajo > 0} ? 'kpi-amber' : 'kpi-emerald'">
+                <div class="kpi-icon">
+                    <i class="bi" th:classappend="${stockBajo > 0} ? 'bi-exclamation-triangle' : 'bi-shield-check'"></i>
+                </div>
                 <div class="kpi-body">
-                    <div class="kpi-label">Stock bajo</div>
-                    <div class="kpi-value" th:text="${stockBajo}">0</div>
-                    <div class="kpi-foot">
-                        <i class="bi bi-circle-fill kpi-dot"></i>
-                        <span th:if="${stockBajo > 0}">Requieren atención</span>
-                        <span th:if="${stockBajo == 0}">Todo en orden</span>
-                    </div>
+                    <div class="kpi-val" th:text="${stockBajo}">0</div>
+                    <div class="kpi-lbl"
+                         th:text="${stockBajo > 0} ? 'Requieren atención' : 'Stock en orden'">Stock bajo</div>
                 </div>
-                <i class="bi kpi-wm"
-                   th:classappend="${stockBajo > 0} ? 'bi-exclamation-triangle' : 'bi-check-circle'"></i>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- ── Info chips (discretas) ──────────────────────────── -->
-    <div class="row g-2 mb-4">
-
-        <!-- Por vencer -->
-        <div class="col-md-4">
-            <div class="info-chip" th:classappend="${porVencer > 0} ? 'ic-amber' : 'ic-green'">
-                <i class="bi" th:classappend="${porVencer > 0} ? 'bi-clock-history' : 'bi-calendar-check'"></i>
-                <div class="ic-content">
-                    <span class="ic-val" th:text="${porVencer}">0</span>
-                    <span class="ic-lbl">producto<span th:if="${porVencer != 1}">s</span> por vencer en 30 días</span>
-                </div>
-                <a th:href="@{/productos}" class="ic-act" th:if="${porVencer > 0}">
-                    Ver <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-
-        <!-- Estado del sistema -->
-        <div class="col-md-4">
-            <div class="info-chip ic-blue">
-                <i class="bi bi-shield-check"></i>
-                <div class="ic-content">
-                    <span class="ic-val">Operativo</span>
-                    <span class="ic-lbl">Estado del sistema</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Actividad reciente (solo admin) -->
-        <div class="col-md-4" sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/configuracion(tab='actividad')}" class="info-chip ic-indigo text-decoration-none">
-                <i class="bi bi-journal-text"></i>
-                <div class="ic-content">
-                    <span class="ic-val">Registros</span>
-                    <span class="ic-lbl">Ver actividad del sistema</span>
-                </div>
-                <i class="bi bi-arrow-right ic-arr"></i>
             </a>
         </div>
 
     </div>
 
-    <!-- ── Ventas recientes + Stock bajo ────────────────────── -->
-    <div class="row g-3 mb-3">
+    <!-- ── Cuerpo principal ───────────────────────────────────── -->
+    <div class="row g-3 mb-4">
 
+        <!-- Ventas recientes -->
         <div class="col-lg-8">
-            <div class="card h-100">
+            <div class="card h-100 border-0 shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span class="fw-semibold d-flex align-items-center gap-2">
-                        <i class="bi bi-clock-history text-primary"></i>
+                        <span class="hdr-dot bg-primary"></span>
                         Ventas recientes
                     </span>
-                    <a th:href="@{/ventas}" class="btn btn-sm btn-outline-primary">Ver todas</a>
+                    <a th:href="@{/ventas}" class="btn btn-sm btn-outline-primary">
+                        Ver todas <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
+                    <table class="table dash-table mb-0">
                         <thead>
                         <tr>
                             <th class="ps-3">#</th>
                             <th>Cliente</th>
                             <th>Tipo</th>
                             <th class="text-end">Total</th>
-                            <th>Fecha</th>
+                            <th>Hora</th>
                             <th></th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="v : ${ventasRecientes}">
-                            <td class="ps-3 text-muted fw-medium" th:text="'#'+${v.id}"></td>
-                            <td th:text="${v.clienteNombre ?: 'Cliente varios'}"></td>
+                            <td class="ps-3">
+                                <span class="text-muted small" th:text="'#'+${v.id}"></span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="cli-av"
+                                         th:text="${v.clienteNombre != null and !v.clienteNombre.isEmpty()} ? ${#strings.substring(v.clienteNombre,0,1).toUpperCase()} : 'V'">V</div>
+                                    <span class="small" th:text="${v.clienteNombre ?: 'Cliente varios'}"></span>
+                                </div>
+                            </td>
                             <td>
                                 <span th:if="${v.tipoComprobante == '03'}" class="badge text-bg-info">Boleta</span>
                                 <span th:if="${v.tipoComprobante == '01'}" class="badge text-bg-primary">Factura</span>
                             </td>
-                            <td class="text-end fw-semibold text-success">
-                                S/<span th:text="${#numbers.formatDecimal(v.total,1,2)}"></span>
+                            <td class="text-end">
+                                <span class="fw-bold text-success">
+                                    S/<span th:text="${#numbers.formatDecimal(v.total,1,2)}"></span>
+                                </span>
                             </td>
-                            <td class="text-muted" th:text="${#temporals.format(v.fechaVenta,'dd/MM HH:mm')}"></td>
+                            <td>
+                                <span class="small text-muted"
+                                      th:text="${#temporals.format(v.fechaVenta,'HH:mm')}"></span>
+                            </td>
                             <td>
                                 <a th:href="@{/ventas/{id}/comprobante(id=${v.id})}"
                                    class="btn btn-sm btn-outline-secondary" title="Ver comprobante">
@@ -179,9 +144,12 @@
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(ventasRecientes)}">
-                            <td colspan="6" class="text-center text-muted py-5">
-                                <i class="bi bi-receipt d-block mb-2" style="font-size:2rem;opacity:.2"></i>
-                                Sin ventas registradas hoy
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-receipt d-block mb-2 text-muted" style="font-size:2.5rem;opacity:.25"></i>
+                                <div class="text-muted small mb-3">Sin ventas registradas hoy</div>
+                                <a th:href="@{/ventas/nueva}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-cart-plus me-1"></i>Registrar primera venta
+                                </a>
                             </td>
                         </tr>
                         </tbody>
@@ -190,272 +158,332 @@
             </div>
         </div>
 
-        <div class="col-lg-4">
-            <div class="card h-100">
-                <div class="card-header d-flex align-items-center gap-2">
-                    <i class="bi bi-exclamation-triangle text-warning"></i>
-                    <span class="fw-semibold text-warning">Stock Bajo</span>
+        <!-- Columna derecha -->
+        <div class="col-lg-4 d-flex flex-column gap-3">
+
+            <!-- Stock bajo -->
+            <div class="card border-0 shadow-sm" style="flex:1;min-height:0">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <span class="d-flex align-items-center gap-2">
+                        <span class="hdr-dot bg-warning"></span>
+                        <span class="fw-semibold">Stock bajo</span>
+                    </span>
+                    <span th:if="${stockBajo > 0}"
+                          class="badge text-bg-danger rounded-pill"
+                          th:text="${stockBajo}">0</span>
+                    <span th:if="${stockBajo == 0}"
+                          class="badge text-bg-success rounded-pill">OK</span>
                 </div>
-                <ul class="list-group list-group-flush">
-                    <li th:each="p : ${productosStockBajo}"
-                        class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="fw-semibold" th:text="${p.nombre}" style="font-size:.83rem"></div>
-                            <div class="text-muted" style="font-size:.72rem" th:text="${p.presentacion}"></div>
+                <div class="stock-scroll">
+                    <div th:each="p : ${productosStockBajo}" class="stock-row">
+                        <div class="sr-left">
+                            <div class="sr-name" th:text="${p.nombre}"></div>
+                            <div class="sr-sub" th:if="${p.presentacion}" th:text="${p.presentacion}"></div>
                         </div>
-                        <span class="badge text-bg-danger rounded-pill"
-                              th:text="${p.stock}+' uds'"></span>
-                    </li>
-                    <li th:if="${#lists.isEmpty(productosStockBajo)}"
-                        class="list-group-item text-center text-muted py-4">
-                        <i class="bi bi-check-circle-fill text-success me-1"></i>Todo en orden
-                    </li>
-                </ul>
+                        <span class="badge rounded-pill px-2"
+                              th:classappend="${p.stock == 0} ? 'text-bg-danger' : 'text-bg-warning text-dark'"
+                              th:text="${p.stock} + ' uds'">0</span>
+                    </div>
+                    <div th:if="${#lists.isEmpty(productosStockBajo)}"
+                         class="d-flex flex-column align-items-center justify-content-center py-4 text-muted gap-1">
+                        <i class="bi bi-check2-circle text-success" style="font-size:1.8rem"></i>
+                        <span class="small">Inventario en orden</span>
+                    </div>
+                </div>
             </div>
+
+            <!-- Mini indicadores -->
+            <div class="row g-2">
+                <div class="col-6">
+                    <div class="mini-chip" th:classappend="${porVencer > 0} ? 'mc-amber' : 'mc-green'">
+                        <i class="bi" th:classappend="${porVencer > 0} ? 'bi-clock-history' : 'bi-calendar-check'"></i>
+                        <div>
+                            <div class="mc-val" th:text="${porVencer}">0</div>
+                            <div class="mc-lbl">por vencer<br>30 días</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="mini-chip mc-blue">
+                        <i class="bi bi-wifi"></i>
+                        <div>
+                            <div class="mc-val">●</div>
+                            <div class="mc-lbl">sistema<br>operativo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
 
-    <!-- ── Accesos rápidos (navigation tiles) ───────────────── -->
-    <div class="dash-section-label">Acceso rápido</div>
+    <!-- ── Acceso rápido ─────────────────────────────────────── -->
+    <div class="section-label mb-2">Acceso rápido</div>
     <div class="row g-3">
 
-        <div class="col-sm-6 col-lg-3">
-            <a th:href="@{/ventas/nueva}" class="nav-tile text-decoration-none" style="--nt:#3b82f6">
-                <div class="nt-strip"><i class="bi bi-cart-plus"></i></div>
-                <div class="nt-body">
-                    <div class="nt-title">Nueva Venta</div>
-                    <div class="nt-sub">Registrar una venta</div>
-                </div>
-                <i class="bi bi-chevron-right nt-arr"></i>
+        <div class="col-6 col-md-3">
+            <a th:href="@{/ventas/nueva}" class="qa-card text-decoration-none" style="--qa:#3b82f6">
+                <div class="qa-icon-wrap"><i class="bi bi-cart-plus"></i></div>
+                <div class="qa-title">Nueva Venta</div>
+                <div class="qa-desc">Registrar una venta</div>
             </a>
         </div>
 
-        <div class="col-sm-6 col-lg-3">
-            <a th:href="@{/ventas}" class="nav-tile text-decoration-none" style="--nt:#10b981">
-                <div class="nt-strip"><i class="bi bi-receipt"></i></div>
-                <div class="nt-body">
-                    <div class="nt-title">Historial</div>
-                    <div class="nt-sub">Ver todas las ventas</div>
-                </div>
-                <i class="bi bi-chevron-right nt-arr"></i>
+        <div class="col-6 col-md-3">
+            <a th:href="@{/ventas}" class="qa-card text-decoration-none" style="--qa:#10b981">
+                <div class="qa-icon-wrap"><i class="bi bi-receipt"></i></div>
+                <div class="qa-title">Historial</div>
+                <div class="qa-desc">Ver todas las ventas</div>
             </a>
         </div>
 
-        <div class="col-sm-6 col-lg-3">
-            <a th:href="@{/productos}" class="nav-tile text-decoration-none" style="--nt:#0891b2">
-                <div class="nt-strip"><i class="bi bi-boxes"></i></div>
-                <div class="nt-body">
-                    <div class="nt-title">Inventario</div>
-                    <div class="nt-sub">Gestionar productos</div>
-                </div>
-                <i class="bi bi-chevron-right nt-arr"></i>
+        <div class="col-6 col-md-3">
+            <a th:href="@{/productos}" class="qa-card text-decoration-none" style="--qa:#0891b2">
+                <div class="qa-icon-wrap"><i class="bi bi-boxes"></i></div>
+                <div class="qa-title">Inventario</div>
+                <div class="qa-desc">Gestionar productos</div>
             </a>
         </div>
 
-        <div class="col-sm-6 col-lg-3" sec:authorize="hasRole('ADMIN')">
-            <a th:href="@{/configuracion}" class="nav-tile text-decoration-none" style="--nt:#6366f1">
-                <div class="nt-strip"><i class="bi bi-gear-fill"></i></div>
-                <div class="nt-body">
-                    <div class="nt-title">Configuración</div>
-                    <div class="nt-sub">Farmacia y usuarios</div>
-                </div>
-                <i class="bi bi-chevron-right nt-arr"></i>
+        <div class="col-6 col-md-3" sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/configuracion}" class="qa-card text-decoration-none" style="--qa:#6366f1">
+                <div class="qa-icon-wrap"><i class="bi bi-gear-fill"></i></div>
+                <div class="qa-title">Configuración</div>
+                <div class="qa-desc">Farmacia y usuarios</div>
             </a>
         </div>
 
     </div>
 
-</section>
-
 <style>
-/* ── Dashboard fecha ─────────────────────────────── */
-.dash-date {
-  font-size: .78rem;
-  color: #64748b;
-  font-variant-numeric: tabular-nums;
+/* ── Hero ───────────────────────────────────────────── */
+.dash-hero {
+    background: linear-gradient(105deg, #f0fdf4 0%, #dcfce7 55%, #bbf7d0 100%);
+    border-radius: 0;
+    padding: 1.3rem 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    position: relative;
+    box-shadow: 0 2px 16px rgba(22,163,74,.12);
+    overflow: hidden;
 }
-.dash-section-label {
-  font-size: .62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  color: #94a3b8;
-  margin-bottom: .6rem;
-  padding-left: 2px;
+.dh-icon-wrap {
+    width: 56px; height: 56px;
+    background: #16a34a;
+    border-radius: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.55rem; color: #fff;
+    flex-shrink: 0;
+}
+.dh-left  { flex: 1; min-width: 0; }
+.dh-greet {
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+    color: #16a34a;
+    margin-bottom: .2rem;
+}
+.dh-name  { font-size: 1.45rem; font-weight: 800; color: #14532d; line-height: 1.1; margin-bottom: .2rem; }
+.dh-sub   { font-size: .7rem; color: #4b7a5a; }
+.dh-right { display: flex; align-items: center; gap: 1.25rem; flex-shrink: 0; }
+.dh-clock-box { text-align: right; }
+.dh-time  { font-size: 1.5rem; font-weight: 800; color: #14532d; font-variant-numeric: tabular-nums; line-height: 1; }
+.dh-date  { font-size: .67rem; color: #4b7a5a; margin-top: .2rem; white-space: nowrap; text-transform: capitalize; }
+.dh-btn   {
+    white-space: nowrap;
+    background: #16a34a; color: #fff; border: none;
+    padding: .45rem 1rem; font-size: .82rem; font-weight: 600;
+}
+.dh-btn:hover { background: #15803d; color: #fff; }
+.dh-close {
+    position: absolute; top: .6rem; right: .7rem;
+    background: none; border: none; padding: .25rem .4rem;
+    color: #6b7280; font-size: .75rem; cursor: pointer;
+    line-height: 1; opacity: .6;
+    transition: opacity .15s;
+}
+.dh-close:hover { opacity: 1; }
+.dash-hero-hidden {
+    opacity: 0;
+    transform: translateY(-8px);
+    max-height: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    overflow: hidden;
+    pointer-events: none;
 }
 
-/* ── KPI Cards ───────────────────────────────────── */
+/* ── KPI cards ──────────────────────────────────────── */
 .kpi-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-left: 5px solid var(--kc, #3b82f6);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 12px rgba(0,0,0,.04);
-  position: relative;
-  overflow: hidden;
-  padding: 1.15rem 1.1rem 1rem;
-  height: 100%;
-  transition: box-shadow .2s, transform .2s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-radius: 0;
+    padding: 1.2rem 1.15rem;
+    min-height: 94px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+    cursor: default;
 }
-.kpi-card:hover {
-  box-shadow: 0 6px 20px rgba(0,0,0,.1);
-  transform: translateY(-2px);
+a.kpi-card { cursor: pointer; }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,.18); }
+.kpi-icon {
+    width: 54px; height: 54px;
+    border-radius: 13px;
+    background: rgba(255,255,255,.18);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.45rem; color: #fff;
+    flex-shrink: 0;
+    position: relative; z-index: 1;
 }
-.kpi-body { position: relative; z-index: 1; }
-.kpi-label {
-  font-size: .62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.1px;
-  color: #94a3b8;
-  margin-bottom: .5rem;
+.kpi-body  { position: relative; z-index: 1; }
+.kpi-val   { font-size: 2rem; font-weight: 800; color: #fff; line-height: 1; letter-spacing: -.5px; }
+.kpi-lbl   { font-size: .67rem; font-weight: 600; color: rgba(255,255,255,.72); margin-top: .3rem; text-transform: uppercase; letter-spacing: .7px; }
+.kpi-blue   { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+.kpi-green  { background: linear-gradient(135deg, #10b981 0%, #047857 100%); }
+.kpi-teal   { background: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%); }
+.kpi-amber  { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.kpi-emerald { background: linear-gradient(135deg, #34d399 0%, #059669 100%); }
+
+/* ── Bootstrap card override ────────────────────────── */
+.card { border-radius: 0 !important; }
+
+/* ── Card header ────────────────────────────────────── */
+.hdr-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+/* ── Recent sales table ─────────────────────────────── */
+.dash-table thead th {
+    font-size: .62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .9px;
+    color: #94a3b8; padding: .55rem .75rem;
+    background: #fafbfc;
+    border-bottom: 1px solid #f1f5f9;
+    white-space: nowrap;
 }
-.kpi-value {
-  font-size: 2.1rem;
-  font-weight: 800;
-  color: #0f172a;
-  letter-spacing: -.5px;
-  line-height: 1;
-  margin-bottom: .55rem;
+.dash-table tbody td {
+    font-size: .82rem;
+    padding: .6rem .75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f8fafc;
 }
-.kpi-foot {
-  display: flex;
-  align-items: center;
-  gap: .35rem;
-  font-size: .7rem;
-  color: #94a3b8;
-  padding-top: .5rem;
-  border-top: 1px solid #f1f5f9;
-}
-.kpi-dot {
-  font-size: .4rem;
-  color: var(--kc, #3b82f6);
-  flex-shrink: 0;
-}
-.kpi-wm {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 4rem;
-  color: var(--kc, #3b82f6);
-  opacity: .07;
-  line-height: 1;
-  pointer-events: none;
-  z-index: 0;
+.dash-table tbody tr:last-child td { border-bottom: none; }
+.dash-table tbody tr:hover td { background: #f8fafc; }
+
+.cli-av {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #eff6ff; color: #2563eb;
+    font-size: .66rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
 }
 
-/* ── Navigation tiles ────────────────────────────── */
-.nav-tile {
-  display: flex;
-  align-items: stretch;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.05);
-  overflow: hidden;
-  transition: box-shadow .18s, transform .18s;
-  cursor: pointer;
-  height: 100%;
-  min-height: 64px;
+/* ── Stock panel ────────────────────────────────────── */
+.stock-scroll { max-height: 210px; overflow-y: auto; }
+.stock-scroll::-webkit-scrollbar { width: 4px; }
+.stock-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
+.stock-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .55rem 1rem; gap: .5rem;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background .1s;
 }
-.nav-tile:hover {
-  box-shadow: 0 5px 18px rgba(0,0,0,.10);
-  transform: translateY(-2px);
+.stock-row:last-child { border-bottom: none; }
+.stock-row:hover { background: #fafbfc; }
+.sr-name { font-size: .8rem; font-weight: 600; color: #1e293b; line-height: 1.2; }
+.sr-sub  { font-size: .68rem; color: #94a3b8; }
+
+/* ── Mini chips ─────────────────────────────────────── */
+.mini-chip {
+    border-radius: 0;
+    padding: .9rem .8rem;
+    display: flex; align-items: center; gap: .6rem;
+    height: 100%;
 }
-.nav-tile:hover .nt-arr {
-  transform: translateX(4px);
-  color: var(--nt, #3b82f6);
-}
-.nt-strip {
-  width: 54px;
-  background: var(--nt, #3b82f6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  color: #fff;
-  flex-shrink: 0;
-}
-.nt-body {
-  flex: 1;
-  padding: .8rem 1rem;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.nt-title {
-  font-size: .85rem;
-  font-weight: 700;
-  color: #1e293b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.nt-sub {
-  font-size: .71rem;
-  color: #94a3b8;
-  margin-top: .12rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.nt-arr {
-  font-size: .8rem;
-  color: #d1d5db;
-  margin: auto .85rem auto 0;
-  flex-shrink: 0;
-  transition: transform .18s, color .18s;
+.mini-chip > i { font-size: 1.3rem; color: rgba(255,255,255,.9); flex-shrink: 0; }
+.mc-val { font-size: 1.35rem; font-weight: 800; color: #fff; line-height: 1; }
+.mc-lbl { font-size: .6rem; color: rgba(255,255,255,.72); text-transform: uppercase; letter-spacing: .4px; font-weight: 600; margin-top: .15rem; }
+.mc-amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.mc-green { background: linear-gradient(135deg, #10b981, #047857); }
+.mc-blue  { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+
+/* ── Section label ──────────────────────────────────── */
+.section-label {
+    font-size: .6rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.3px;
+    color: #94a3b8; padding-left: 2px;
 }
 
-/* ── Info chips (discretas) ──────────────────────── */
-.info-chip {
-  display: flex;
-  align-items: center;
-  gap: .7rem;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-left: 3px solid transparent;
-  border-radius: 7px;
-  padding: .6rem .9rem;
-  font-size: .78rem;
-  color: #1e293b;
+/* ── Quick access cards ─────────────────────────────── */
+.qa-card {
+    display: flex; flex-direction: column; align-items: center;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 0;
+    padding: 1.4rem 1rem;
+    text-align: center;
+    transition: transform .18s, box-shadow .18s, border-color .18s;
+    height: 100%;
+    min-height: 116px;
 }
-.info-chip > i:first-child {
-  font-size: 1rem;
-  flex-shrink: 0;
+.qa-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(0,0,0,.1);
+    border-color: var(--qa, #3b82f6);
 }
-.ic-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: baseline;
-  gap: .35rem;
-  flex-wrap: wrap;
+.qa-icon-wrap {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: color-mix(in srgb, var(--qa, #3b82f6) 12%, transparent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: var(--qa, #3b82f6);
+    margin-bottom: .6rem;
+    transition: background .18s;
 }
-.ic-val  { font-weight: 700; font-size: .82rem; }
-.ic-lbl  { color: #94a3b8; font-size: .69rem; }
-.ic-act  { margin-left: auto; font-size: .71rem; color: var(--primary); text-decoration: none; white-space: nowrap; flex-shrink: 0; }
-.ic-arr  { margin-left: auto; color: #d1d5db; font-size: .8rem; flex-shrink: 0; transition: transform .18s, color .18s; }
-.info-chip:hover .ic-arr { transform: translateX(3px); color: #6366f1; }
+.qa-card:hover .qa-icon-wrap { background: var(--qa, #3b82f6); color: #fff; }
+.qa-title { font-size: .86rem; font-weight: 700; color: #1e293b; margin-bottom: .2rem; }
+.qa-desc  { font-size: .68rem; color: #94a3b8; }
 
-.ic-amber { border-left-color: #d97706; }
-.ic-amber > i:first-child { color: #d97706; }
-.ic-green { border-left-color: #10b981; }
-.ic-green > i:first-child { color: #10b981; }
-.ic-blue  { border-left-color: #3b82f6; }
-.ic-blue  > i:first-child { color: #3b82f6; }
-.ic-indigo { border-left-color: #6366f1; }
-.ic-indigo > i:first-child { color: #6366f1; }
-
-/* ── Responsive ──────────────────────────────────── */
+/* ── Responsive ─────────────────────────────────────── */
 @media (max-width: 575.98px) {
-  .kpi-value { font-size: 1.7rem; }
-  .kpi-wm { font-size: 3rem; }
-  .nt-strip { width: 46px; font-size: 1.1rem; }
+    .dash-hero  { flex-direction: column; padding: 1.25rem; }
+    .dh-right   { width: 100%; justify-content: space-between; }
+    .dh-clock-box { text-align: left; }
+    .kpi-val    { font-size: 1.65rem; }
+    .kpi-icon   { width: 44px; height: 44px; font-size: 1.15rem; }
+    .kpi-card   { min-height: 82px; padding: 1rem .9rem; }
 }
 </style>
+
+<script>
+// Saludo dinámico
+(function() {
+    const h = new Date().getHours();
+    document.getElementById('dashGreet').textContent =
+        h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
+})();
+
+// Reloj
+(function tick() {
+    const d = new Date(), el = document.getElementById('dashTime');
+    if (el) el.textContent =
+        String(d.getHours()).padStart(2,'0') + ':' +
+        String(d.getMinutes()).padStart(2,'0');
+    setTimeout(tick, 30000);
+})();
+
+function dismissHero() {
+    const hero = document.getElementById('dashHero');
+    if (!hero) return;
+    hero.style.transition = 'opacity .4s ease';
+    hero.style.opacity = '0';
+    setTimeout(() => hero.style.display = 'none', 420);
+}
+</script>
+
+</section>
 </body>
 </html>

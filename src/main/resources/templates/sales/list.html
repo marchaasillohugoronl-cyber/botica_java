@@ -35,7 +35,7 @@
                                 <span th:if="${v.tipoComprobante == '03'}" class="badge bg-info me-1">Boleta</span>
                                 <span th:if="${v.tipoComprobante == '01'}" class="badge bg-primary me-1">Factura</span>
                                 <span class="fw-semibold"
-                                      th:text="${v.comprobante.serie + '-' + #strings.leftPad(v.comprobante.correlativo, 8, '0')}"></span>
+                                      th:text="${v.comprobante.numeroFormateado}"></span>
                             </span>
                             <span th:unless="${v.comprobante != null}" class="text-muted">Sin comprobante</span>
                         </td>

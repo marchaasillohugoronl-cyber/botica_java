@@ -119,6 +119,7 @@ public class ControladorProductos {
             m.put("categoria",    p.getCategoria() != null ? p.getCategoria().getNombre() : null);
             m.put("precio",       p.getPrecioVenta().doubleValue());
             m.put("stock",        p.getStock());
+            m.put("imagenUrl",    p.getImagenPath() != null ? "/uploads/" + p.getImagenPath() : null);
             return m;
         }).toList();
     }

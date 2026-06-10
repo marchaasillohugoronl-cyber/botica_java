@@ -114,4 +114,8 @@ public class Comprobante {
 
     public LocalDateTime getCreadoEn() { return creadoEn; }
     public void setCreadoEn(LocalDateTime creadoEn) { this.creadoEn = creadoEn; }
+
+    public String getNumeroFormateado() {
+        return serie + "-" + String.format("%08d", correlativo);
+    }
 }

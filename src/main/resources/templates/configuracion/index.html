@@ -240,7 +240,9 @@
                                         <!-- Reset password -->
                                         <button class="btn btn-sm btn-outline-secondary"
                                                 th:if="${u.rol.name() != 'ADMIN'}"
-                                                th:onclick="'abrirResetPwd(' + ${u.id} + ',\'' + ${u.nombre} + '\')'"
+                                                th:data-id="${u.id}"
+                                                th:data-nombre="${u.nombre}"
+                                                onclick="abrirResetPwd(this.dataset.id, this.dataset.nombre)"
                                                 title="Cambiar contraseña">
                                             <i class="bi bi-key"></i>
                                         </button>
@@ -404,8 +406,6 @@
             </div>
         </div>
     </div>
-
-</section>
 
 <style>
 /* ── Logo preview ──────────────────────────────────── */
@@ -673,5 +673,6 @@ document.querySelectorAll('#logBody tr.log-row').forEach(tr => {
     });
 })();
 </script>
+</section>
 </body>
 </html>

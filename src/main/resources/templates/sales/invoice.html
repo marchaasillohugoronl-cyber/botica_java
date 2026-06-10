@@ -43,11 +43,10 @@
     <!-- Encabezado empresa -->
     <div class="row align-items-center mb-3">
         <div class="col-7">
-            <h5 class="fw-bold mb-0 text-primary">BOTICA SALUD S.A.C.</h5>
-            <div class="small text-muted" th:text="'RUC: ' + ${@environment.getProperty('sunat.ruc')}"></div>
-            <div class="small text-muted" th:text="${@environment.getProperty('sunat.direccion')}"></div>
-            <div class="small text-muted"
-                 th:text="${@environment.getProperty('sunat.distrito') + ' - ' + @environment.getProperty('sunat.provincia')}"></div>
+            <h5 class="fw-bold mb-0 text-primary" th:text="${sunatRazonSocial ?: 'BOTICA SALUD S.A.C.'}">BOTICA SALUD S.A.C.</h5>
+            <div class="small text-muted" th:text="'RUC: ' + ${sunatRuc}"></div>
+            <div class="small text-muted" th:text="${sunatDireccion}"></div>
+            <div class="small text-muted" th:text="${sunatDistrito + ' - ' + sunatProvincia}"></div>
         </div>
         <div class="col-5">
             <div class="comprobante-titulo">
@@ -55,7 +54,7 @@
                      th:text="${venta.tipoComprobante == '01'} ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA'"></div>
                 <div class="fs-5 fw-bold mt-1"
                      th:if="${comprobante != null}"
-                     th:text="${comprobante.serie + '-' + #strings.leftPad(comprobante.correlativo, 8, '0')}"></div>
+                     th:text="${comprobante.numeroFormateado}"></div>
             </div>
         </div>
     </div>
@@ -92,7 +91,9 @@
         <tr th:each="d : ${venta.detalles}">
             <td>
                 <div th:text="${d.producto.nombre}"></div>
-                <div class="text-muted" th:text="${d.producto.presentacion + ' ' + (d.producto.concentracion ?: '')}"></div>
+                <div class="text-muted"
+                     th:if="${d.producto.presentacion != null or d.producto.concentracion != null}"
+                     th:text="${(d.producto.presentacion ?: '') + (d.producto.concentracion != null ? ' · ' + d.producto.concentracion : '')}"></div>
             </td>
             <td class="text-center" th:text="${d.cantidad}"></td>
             <td class="text-end" th:text="${'S/ ' + #numbers.formatDecimal(d.precioUnitario,1,2)}"></td>
@@ -147,6 +148,6 @@
         Gracias por su compra - BOTICA SALUD | Tel: (01) 000-0000
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
 </body>
 </html>

@@ -18,7 +18,23 @@
                         </thead>
                         <tbody>
                         <tr th:each="d : ${venta.detalles}">
-                            <td class="ps-3 fw-semibold" th:text="${d.producto.nombre}"></td>
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img th:if="${d.producto.imagenPath}"
+                                         th:src="@{/uploads/{f}(f=${d.producto.imagenPath})}"
+                                         alt="" style="width:42px;height:42px;object-fit:cover;border-radius:6px;flex-shrink:0">
+                                    <div th:unless="${d.producto.imagenPath}"
+                                         style="width:42px;height:42px;background:#f1f5f9;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#cbd5e1">
+                                        <i class="bi bi-capsule"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold" th:text="${d.producto.nombre}"></div>
+                                        <small class="text-muted"
+                                               th:if="${d.producto.presentacion != null or d.producto.concentracion != null}"
+                                               th:text="${(d.producto.presentacion ?: '') + (d.producto.concentracion != null ? ' · ' + d.producto.concentracion : '')}"></small>
+                                    </div>
+                                </div>
+                            </td>
                             <td class="text-center" th:text="${d.cantidad}"></td>
                             <td class="text-end">S/ <span th:text="${#numbers.formatDecimal(d.precioUnitario,1,2)}"></span></td>
                             <td class="text-end pe-3 fw-bold">S/ <span th:text="${#numbers.formatDecimal(d.subtotal,1,2)}"></span></td>
@@ -40,7 +56,7 @@
                     <dl class="row small mb-0">
                         <dt class="col-5">Cliente</dt><dd class="col-7" th:text="${venta.clienteNombre ?: 'Varios'}"></dd>
                         <dt class="col-5">Comprobante</dt>
-                        <dd class="col-7" th:text="${venta.comprobante != null ? venta.comprobante.serie + '-' + venta.comprobante.correlativo : '-'}"></dd>
+                        <dd class="col-7" th:text="${venta.comprobante != null ? venta.comprobante.numeroFormateado : '-'}"></dd>
                         <dt class="col-5">SUNAT</dt>
                         <dd class="col-7" th:text="${venta.comprobante != null ? venta.comprobante.estadoSunat : '-'}"></dd>
                         <dt class="col-5">Vendedor</dt><dd class="col-7" th:text="${venta.usuario.nombre}"></dd>
