@@ -2,6 +2,7 @@ package com.botica.controller;
 
 import com.botica.model.Producto;
 import com.botica.service.ServicioCategorias;
+import com.botica.service.ServicioAlmacenamiento;
 import com.botica.service.ServicioProductos;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,10 +23,14 @@ public class ControladorProductos {
 
     private final ServicioProductos servicioProductos;
     private final ServicioCategorias servicioCategorias;
+    private final ServicioAlmacenamiento servicioAlmacenamiento;
 
-    public ControladorProductos(ServicioProductos servicioProductos, ServicioCategorias servicioCategorias) {
+    public ControladorProductos(ServicioProductos servicioProductos,
+                                 ServicioCategorias servicioCategorias,
+                                 ServicioAlmacenamiento servicioAlmacenamiento) {
         this.servicioProductos = servicioProductos;
         this.servicioCategorias = servicioCategorias;
+        this.servicioAlmacenamiento = servicioAlmacenamiento;
     }
 
     @GetMapping
@@ -120,7 +125,7 @@ public class ControladorProductos {
             m.put("categoria",    p.getCategoria() != null ? p.getCategoria().getNombre() : null);
             m.put("precio",       p.getPrecioVenta().doubleValue());
             m.put("stock",        p.getStock());
-            m.put("imagenUrl",    p.getImagenPath() != null ? "/uploads/" + p.getImagenPath() : null);
+            m.put("imagenUrl",    servicioAlmacenamiento.obtenerUrlPublica(p.getImagenPath()));
             return m;
         }).toList();
     }
