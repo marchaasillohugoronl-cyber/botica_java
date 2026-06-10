@@ -3,6 +3,9 @@ package com.botica.controller;
 import com.botica.model.Producto;
 import com.botica.service.ServicioCategorias;
 import com.botica.service.ServicioProductos;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -82,39 +85,41 @@ public class ControladorProductos {
 
     @GetMapping("/api/todos")
     @ResponseBody
-    public Object todosJson() {
+    public List<Map<String, Object>> todosJson() {
         return toJson(servicioProductos.listarActivos().stream());
     }
 
     @GetMapping("/api/buscar")
     @ResponseBody
-    public Object buscarJson(@RequestParam String q) {
+    public List<Map<String, Object>> buscarJson(@RequestParam String q) {
         if (q == null || q.isBlank()) return todosJson();
         return toJson(servicioProductos.buscar(q).stream());
     }
 
     @GetMapping("/api/por-categoria")
     @ResponseBody
-    public Object porCategoriaJson(@RequestParam Long cat) {
+    public List<Map<String, Object>> porCategoriaJson(@RequestParam Long cat) {
         return toJson(servicioProductos.listarPorCategoria(cat).stream());
     }
 
     @GetMapping("/api/mas-vendidos")
     @ResponseBody
-    public Object masVendidosJson(@RequestParam(defaultValue = "16") int limite) {
+    public List<Map<String, Object>> masVendidosJson(@RequestParam(defaultValue = "16") int limite) {
         return toJson(servicioProductos.listarMasVendidos(limite).stream());
     }
 
-    private Object toJson(Stream<Producto> stream) {
-        return stream.map(p -> new Object() {
-            public final Long id = p.getId();
-            public final String nombre = p.getNombre();
-            public final String presentacion = p.getPresentacion();
-            public final String concentracion = p.getConcentracion();
-            public final String laboratorio = p.getLaboratorio();
-            public final String categoria = p.getCategoria() != null ? p.getCategoria().getNombre() : null;
-            public final double precio = p.getPrecioVenta().doubleValue();
-            public final int stock = p.getStock();
+    private List<Map<String, Object>> toJson(Stream<Producto> stream) {
+        return stream.map(p -> {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id",           p.getId());
+            m.put("nombre",       p.getNombre());
+            m.put("presentacion", p.getPresentacion());
+            m.put("concentracion",p.getConcentracion());
+            m.put("laboratorio",  p.getLaboratorio());
+            m.put("categoria",    p.getCategoria() != null ? p.getCategoria().getNombre() : null);
+            m.put("precio",       p.getPrecioVenta().doubleValue());
+            m.put("stock",        p.getStock());
+            return m;
         }).toList();
     }
 }
