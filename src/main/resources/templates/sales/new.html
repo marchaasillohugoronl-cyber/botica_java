@@ -4,332 +4,647 @@
 <head><title>Nueva Venta</title></head>
 <body>
 <section>
-    <div class="d-flex align-items-center mb-4 gap-2">
-        <a th:href="@{/ventas}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
-        <h4 class="fw-bold mb-0"><i class="bi bi-cart-plus me-2 text-primary"></i>Nueva Venta</h4>
+
+    <div class="page-header mb-2">
+        <div class="d-flex align-items-center gap-2">
+            <a th:href="@{/ventas}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h1 class="page-title mb-0"><i class="bi bi-cart-plus me-1"></i>Nueva Venta</h1>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <kbd class="hint-kbd">F2 buscar</kbd>
+            <span class="badge text-bg-secondary rounded-pill" id="contadorItems">0 items</span>
+        </div>
     </div>
 
     <div class="row g-3">
-        <!-- Panel izquierdo: búsqueda de productos -->
+
+        <!-- ══ Izquierda: Catálogo ══════════════════════════════════════ -->
         <div class="col-lg-7">
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-white border-0 py-3">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-search me-2"></i>Agregar Productos</h6>
-                </div>
-                <div class="card-body">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" id="buscarProducto" class="form-control"
-                               placeholder="Buscar producto por nombre o código..."/>
+
+            <!-- Búsqueda -->
+            <div class="card mb-2 shadow-sm">
+                <div class="card-body py-2 px-3">
+                    <div class="position-relative">
+                        <div class="input-group">
+                            <span class="input-group-text bg-primary text-white border-primary px-3">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" id="buscarProducto"
+                                   class="form-control form-control-lg"
+                                   placeholder="Buscar por nombre, código o laboratorio..."
+                                   autocomplete="off" spellcheck="false"/>
+                            <span class="input-group-text" id="spinnerBox" style="display:none!important">
+                                <span class="spinner-border spinner-border-sm text-primary"></span>
+                            </span>
+                            <button class="btn btn-outline-secondary" type="button"
+                                    id="btnClearSearch" style="display:none" onclick="clearSearch()">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <div id="dropdownBusqueda" class="search-dropdown"></div>
                     </div>
-                    <div id="resultadosBusqueda" class="list-group" style="max-height:300px;overflow-y:auto;"></div>
+                    <div class="mt-1 text-muted" style="font-size:.67rem">
+                        <i class="bi bi-keyboard me-1"></i>↑↓ navegar &nbsp;·&nbsp; Enter agregar &nbsp;·&nbsp; Esc cerrar &nbsp;·&nbsp; F2 enfocar
+                    </div>
                 </div>
             </div>
 
-            <!-- Tabla de ítems del carrito -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 py-3">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-cart3 me-2"></i>Carrito</h6>
+            <!-- Grid de productos -->
+            <div class="card shadow-sm" id="panelCatalogo">
+                <div class="card-header py-2 px-3 d-flex align-items-center justify-content-between">
+                    <span style="font-size:.82rem;font-weight:600;color:#475569">
+                        <i class="bi bi-grid me-1 text-primary"></i>Productos
+                    </span>
+                    <span class="badge text-bg-light text-muted" id="totalProductos" style="font-size:.7rem"></span>
                 </div>
-                <div class="card-body p-0">
-                    <table class="table table-sm align-middle mb-0">
-                        <thead class="table-light">
-                        <tr>
-                            <th class="ps-3">Producto</th>
-                            <th class="text-center" style="width:100px">Cantidad</th>
-                            <th class="text-end" style="width:100px">P. Unit</th>
-                            <th class="text-end" style="width:100px">Subtotal</th>
-                            <th style="width:40px"></th>
-                        </tr>
-                        </thead>
-                        <tbody id="carritoBody">
-                        <tr id="emptyCart">
-                            <td colspan="5" class="text-center text-muted py-4">
-                                <i class="bi bi-cart-x fs-3 d-block mb-1"></i>Agregue productos al carrito
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                <div class="card-body p-2">
+                    <div id="gridProductos" class="prod-grid">
+                        <div class="text-center py-4 text-muted w-100">
+                            <span class="spinner-border spinner-border-sm me-2"></span>Cargando productos...
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
 
-        <!-- Panel derecho: datos del cliente y totales -->
+        <!-- ══ Derecha: Carrito + Cobro (sticky) ════════════════════════ -->
         <div class="col-lg-5">
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-white border-0 py-3">
-                    <h6 class="fw-bold mb-0"><i class="bi bi-person me-2"></i>Datos del Comprobante</h6>
+            <div id="panelDer">
+
+                <!-- Carrito -->
+                <div class="card mb-2 shadow-sm">
+                    <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold" style="font-size:.88rem">
+                            <i class="bi bi-cart3 me-1 text-primary"></i>Carrito
+                            <span class="badge text-bg-primary rounded-pill ms-1" id="badgeItems" style="display:none">0</span>
+                        </span>
+                        <button class="btn btn-sm btn-outline-danger py-0" id="btnLimpiar"
+                                onclick="limpiarCarrito()" style="display:none;font-size:.76rem">
+                            <i class="bi bi-trash3 me-1"></i>Vaciar
+                        </button>
+                    </div>
+                    <div id="emptyCart" class="text-center py-4 text-muted">
+                        <i class="bi bi-cart-x d-block mb-1" style="font-size:1.8rem;opacity:.2"></i>
+                        <span style="font-size:.78rem">Agrega productos del catálogo</span>
+                    </div>
+                    <div class="table-responsive" id="carritoWrap" style="display:none">
+                        <table class="table table-sm table-hover mb-0" id="carritoTable">
+                            <tbody id="carritoBody"></tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small">Tipo de Comprobante</label>
-                        <div class="d-flex gap-2">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="tipoComp"
-                                       id="tipoBoleta" value="03" checked/>
-                                <label class="form-check-label" for="tipoBoleta">
-                                    <span class="badge bg-info">Boleta</span>
-                                </label>
+
+                <!-- Comprobante + Cliente -->
+                <div class="card mb-2 shadow-sm">
+                    <div class="card-body py-2 px-3">
+                        <div class="d-flex gap-2 mb-2">
+                            <label class="tipo-btn flex-fill text-center py-1 rounded border active"
+                                   id="lblBoleta" style="cursor:pointer;font-size:.79rem">
+                                <input type="radio" name="tipoComp" value="03" checked class="d-none"/>
+                                <i class="bi bi-file-earmark-text me-1"></i>Boleta
+                            </label>
+                            <label class="tipo-btn flex-fill text-center py-1 rounded border"
+                                   id="lblFactura" style="cursor:pointer;font-size:.79rem">
+                                <input type="radio" name="tipoComp" value="01" class="d-none"/>
+                                <i class="bi bi-file-earmark-spreadsheet me-1"></i>Factura
+                            </label>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-5">
+                                <input type="text" id="clienteRucDni" class="form-control form-control-sm"
+                                       placeholder="DNI (opcional)" maxlength="8"/>
                             </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="tipoComp"
-                                       id="tipoFactura" value="01"/>
-                                <label class="form-check-label" for="tipoFactura">
-                                    <span class="badge bg-primary">Factura</span>
-                                </label>
+                            <div class="col-7">
+                                <input type="text" id="clienteNombre" class="form-control form-control-sm"
+                                       placeholder="Nombre (opcional)"/>
                             </div>
                         </div>
                     </div>
-                    <div class="mb-3" id="campoRucDni">
-                        <label class="form-label fw-semibold small" id="labelDocumento">DNI del Cliente</label>
-                        <input type="text" id="clienteRucDni" class="form-control"
-                               placeholder="00000000" maxlength="11"/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small">Nombre del Cliente</label>
-                        <input type="text" id="clienteNombre" class="form-control"
-                               placeholder="Opcional para boleta"/>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label fw-semibold small">Observación</label>
-                        <input type="text" id="observacion" class="form-control" placeholder="Opcional"/>
+                </div>
+
+                <!-- Método de pago -->
+                <div class="card mb-2 shadow-sm">
+                    <div class="card-body py-2 px-3">
+                        <div class="fw-semibold mb-2" style="font-size:.8rem;color:#475569">
+                            <i class="bi bi-wallet2 me-1 text-primary"></i>Pago
+                        </div>
+                        <div class="d-flex gap-1 flex-wrap mb-2">
+                            <button class="btn btn-sm pago-btn active" data-metodo="efectivo" onclick="selMetodo(this)">
+                                <i class="bi bi-cash me-1"></i>Efectivo
+                            </button>
+                            <button class="btn btn-sm pago-btn" data-metodo="yape" onclick="selMetodo(this)">
+                                <i class="bi bi-phone me-1"></i>Yape / Plin
+                            </button>
+                            <button class="btn btn-sm pago-btn" data-metodo="tarjeta" onclick="selMetodo(this)">
+                                <i class="bi bi-credit-card me-1"></i>Tarjeta
+                            </button>
+                            <button class="btn btn-sm pago-btn" data-metodo="transferencia" onclick="selMetodo(this)">
+                                <i class="bi bi-bank me-1"></i>Transferencia
+                            </button>
+                        </div>
+
+                        <!-- Panel efectivo: monto + vuelto -->
+                        <div id="panelEfectivo">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-6">
+                                    <label class="form-label mb-1" style="font-size:.72rem;color:#64748b">Monto recibido</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text fw-semibold">S/</span>
+                                        <input type="number" id="montoRecibido"
+                                               class="form-control fw-bold"
+                                               placeholder="0.00" min="0" step="0.10"
+                                               oninput="calcVuelto()" onclick="this.select()"/>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label mb-1" style="font-size:.72rem;color:#64748b">Vuelto</label>
+                                    <div class="vuelto-display" id="vueltoDisplay">
+                                        <span class="text-muted" style="font-size:.8rem">—</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-1 mt-2 flex-wrap" id="montosRapidos"></div>
+                        </div>
+
                     </div>
                 </div>
-            </div>
 
-            <!-- Totales -->
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted">Subtotal (sin IGV)</span>
-                        <span>S/ <span id="subtotalVal">0.00</span></span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="text-muted">IGV (18%)</span>
-                        <span>S/ <span id="igvVal">0.00</span></span>
-                    </div>
-                    <hr/>
-                    <div class="d-flex justify-content-between fs-5 fw-bold">
-                        <span>TOTAL</span>
-                        <span class="text-success">S/ <span id="totalVal">0.00</span></span>
+                <!-- Totales + Botón -->
+                <div class="card shadow-sm">
+                    <div class="card-body py-2 px-3">
+                        <div class="d-flex justify-content-between py-1 text-muted" style="font-size:.8rem">
+                            <span>Subtotal (sin IGV)</span>
+                            <span>S/ <span id="subtotalVal">0.00</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 text-muted" style="font-size:.8rem">
+                            <span>IGV (18%)</span>
+                            <span>S/ <span id="igvVal">0.00</span></span>
+                        </div>
+                        <hr class="my-1"/>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-bold" style="font-size:1rem">TOTAL</span>
+                            <span class="fw-bold text-success" style="font-size:1.7rem;line-height:1">
+                                S/ <span id="totalVal">0.00</span>
+                            </span>
+                        </div>
+                        <div id="mensajeVenta" class="alert d-none mb-2 py-2" style="font-size:.83rem"></div>
+                        <div class="d-grid">
+                            <button type="button" id="btnProcesar"
+                                    class="btn btn-success btn-lg fw-bold py-2"
+                                    onclick="procesarVenta()">
+                                <i class="bi bi-check-circle me-2"></i>Cobrar
+                            </button>
+                        </div>
+                        <a th:href="@{/ventas}" class="btn btn-link btn-sm text-muted d-block text-center mt-1" style="font-size:.75rem">
+                            Cancelar venta
+                        </a>
                     </div>
                 </div>
-            </div>
 
-            <div id="mensajeVenta" class="alert d-none mb-3"></div>
-
-            <div class="d-grid gap-2">
-                <button type="button" id="btnProcesar" class="btn btn-success btn-lg fw-bold"
-                        onclick="procesarVenta()">
-                    <i class="bi bi-check-circle me-2"></i>Procesar Venta
-                </button>
-                <a th:href="@{/ventas}" class="btn btn-outline-secondary">Cancelar</a>
             </div>
         </div>
     </div>
 </section>
 
+<style>
+/* ── Hint keyboard ─────────────────────────────────────── */
+.hint-kbd {
+    font-size:.67rem; background:#f1f5f9; border:1px solid #e2e8f0;
+    padding:2px 6px; border-radius:4px; color:#94a3b8; font-family:inherit;
+}
+
+/* ── Product grid ──────────────────────────────────────── */
+.prod-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:.4rem; min-height:60px; }
+.prod-card {
+    background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:8px;
+    padding:.55rem .65rem; cursor:pointer; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; gap:.15rem;
+    transition:border-color .12s,transform .12s,box-shadow .12s;
+}
+.prod-card:hover { border-color:#3b82f6; transform:translateY(-2px); box-shadow:0 4px 12px rgba(59,130,246,.15); }
+.prod-card.sin-stock { opacity:.45; cursor:not-allowed; }
+.prod-card.sin-stock:hover { transform:none; box-shadow:none; border-color:#e2e8f0; }
+.prod-card.en-carrito { border-color:#10b981!important; background:#f0fdf4; }
+.pc-cat   { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#94a3b8; }
+.pc-name  { font-size:.75rem; font-weight:700; color:#1e293b; line-height:1.2; }
+.pc-sub   { font-size:.64rem; color:#64748b; }
+.pc-price { font-size:.82rem; font-weight:800; color:#059669; margin-top:.1rem; }
+.pc-stock { font-size:.6rem; border-radius:20px; padding:1px 6px; display:inline-block; width:fit-content; }
+.pcs-ok   { background:#dcfce7; color:#166534; }
+.pcs-low  { background:#fef9c3; color:#92400e; }
+.pcs-zero { background:#fee2e2; color:#991b1b; }
+.pc-qty-badge {
+    position:absolute; top:4px; right:4px;
+    background:#2563eb; color:#fff; border-radius:50%;
+    width:18px; height:18px; font-size:.6rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+}
+.pop-ribbon {
+    position:absolute; top:5px; right:-8px;
+    background:#f59e0b; color:#fff; font-size:.52rem; font-weight:700;
+    padding:1px 12px 1px 6px;
+    clip-path:polygon(0 0,100% 0,100% 100%,0 100%,8% 50%);
+}
+
+/* ── Search dropdown ───────────────────────────────────── */
+.search-dropdown {
+    position:absolute; top:100%; left:0; right:0; z-index:1050;
+    background:#fff; border:1px solid #e2e8f0; border-top:none;
+    border-radius:0 0 8px 8px; box-shadow:0 8px 24px rgba(0,0,0,.1);
+    max-height:320px; overflow-y:auto; display:none;
+}
+.si { display:flex; align-items:center; padding:.5rem .9rem; cursor:pointer; border-bottom:1px solid #f1f5f9; gap:.7rem; transition:background .1s; }
+.si:last-child { border-bottom:none; }
+.si:hover,.si.sel { background:#eff6ff; }
+.si-nombre { font-weight:600; font-size:.82rem; }
+.si-sub    { font-size:.68rem; color:#64748b; }
+.si-price  { font-weight:700; color:#059669; font-size:.85rem; white-space:nowrap; }
+.si-stock  { font-size:.66rem; white-space:nowrap; }
+.sb-ok   { background:#dcfce7; color:#166534; padding:1px 7px; border-radius:20px; }
+.sb-low  { background:#fef9c3; color:#92400e; padding:1px 7px; border-radius:20px; }
+.sb-zero { background:#fee2e2; color:#991b1b; padding:1px 7px; border-radius:20px; }
+
+/* ── Receipt type ──────────────────────────────────────── */
+.tipo-btn { color:#64748b; border-color:#e2e8f0!important; transition:all .15s; user-select:none; }
+.tipo-btn.active { background:#eff6ff; border-color:#3b82f6!important; color:#1d4ed8; font-weight:600; }
+
+/* ── Payment method ────────────────────────────────────── */
+.pago-btn { background:#f8fafc; border:1.5px solid #e2e8f0; color:#475569; font-size:.76rem; padding:.28rem .6rem; transition:all .12s; }
+.pago-btn:hover { border-color:#94a3b8; background:#f1f5f9; color:#1e293b; }
+.pago-btn.active { background:#eff6ff; border-color:#3b82f6; color:#1d4ed8; font-weight:600; }
+
+/* ── Cash / change display ─────────────────────────────── */
+.vuelto-display {
+    background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:6px;
+    padding:.28rem .7rem; min-height:31px; display:flex; align-items:center;
+}
+.vuelto-ok  { background:#f0fdf4; border-color:#86efac!important; color:#15803d; font-weight:700; }
+.vuelto-neg { background:#fef2f2; border-color:#fca5a5!important; color:#dc2626; font-weight:700; }
+
+/* ── Quick-amount buttons ──────────────────────────────── */
+.monto-rapido {
+    background:#f1f5f9; border:1px solid #e2e8f0; border-radius:5px;
+    font-size:.72rem; font-weight:600; color:#475569; padding:2px 8px;
+    cursor:pointer; transition:all .1s;
+}
+.monto-rapido:hover { background:#dbeafe; border-color:#93c5fd; color:#1d4ed8; }
+
+/* ── Cart table ────────────────────────────────────────── */
+#carritoTable td { vertical-align:middle; padding:.35rem .45rem; font-size:.79rem; }
+.row-in { animation:rowIn .15s ease; }
+@keyframes rowIn { from{opacity:0;transform:translateX(5px)} to{opacity:1;transform:translateX(0)} }
+mark { background:#fde68a; border-radius:2px; padding:0 2px; }
+
+/* ── Sticky right panel ────────────────────────────────── */
+@media (min-width:992px) {
+    #panelDer { position:sticky; top:68px; max-height:calc(100vh - 88px); overflow-y:auto; scrollbar-width:thin; }
+    #panelDer::-webkit-scrollbar { width:4px; }
+    #panelDer::-webkit-scrollbar-thumb { background:#e2e8f0; border-radius:4px; }
+}
+
+/* ── Card-bump animation when product added ────────────── */
+@keyframes bump { 0%{transform:scale(1)} 40%{transform:scale(1.12)} 100%{transform:scale(1)} }
+.bump { animation:bump .18s ease; }
+</style>
+
 <script th:inline="javascript">
-    const csrfToken = /*[[${_csrf.token}]]*/ '';
-    const csrfHeader = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
-    let carrito = [];
+const CSRF_TOKEN  = /*[[${_csrf.token}]]*/ '';
+const CSRF_HEADER = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
 
-    // Búsqueda de productos con debounce
-    let searchTimer;
-    document.getElementById('buscarProducto').addEventListener('input', function () {
-        clearTimeout(searchTimer);
-        const q = this.value.trim();
-        if (q.length < 2) {
-            document.getElementById('resultadosBusqueda').innerHTML = '';
-            return;
-        }
-        searchTimer = setTimeout(() => buscarProductos(q), 300);
-    });
+let carrito = [], resultados = [], selIdx = -1, timer;
+let GRID_DATA = [], metodoActual = 'efectivo';
+const inputEl   = document.getElementById('buscarProducto');
+const dropEl    = document.getElementById('dropdownBusqueda');
+const spinnerEl = document.getElementById('spinnerBox');
 
-    function buscarProductos(q) {
-        fetch(`/productos/api/buscar?q=${encodeURIComponent(q)}`)
-            .then(r => r.json())
-            .then(data => {
-                const box = document.getElementById('resultadosBusqueda');
-                if (!data.length) {
-                    box.innerHTML = '<div class="list-group-item text-muted text-center py-3">Sin resultados</div>';
-                    return;
-                }
-                box.innerHTML = data.map(p => `
-                    <button type="button" class="list-group-item list-group-item-action py-2 px-3"
-                            onclick="agregarAlCarrito(${p.id}, '${escapeHtml(p.nombre)}', '${escapeHtml(p.presentacion || '')}', ${p.precio}, ${p.stock})">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="fw-semibold small">${escapeHtml(p.nombre)}</div>
-                                <div class="text-muted" style="font-size:0.75rem">${escapeHtml(p.presentacion || '')}</div>
-                            </div>
-                            <div class="text-end">
-                                <div class="fw-bold text-success">S/ ${p.precio.toFixed(2)}</div>
-                                <div class="small text-muted">${p.stock} en stock</div>
-                            </div>
-                        </div>
-                    </button>`).join('');
-            });
-    }
+cargarGrid();
 
-    function agregarAlCarrito(id, nombre, presentacion, precio, stock) {
-        document.getElementById('buscarProducto').value = '';
-        document.getElementById('resultadosBusqueda').innerHTML = '';
+// ─── Búsqueda ──────────────────────────────────────────────
+inputEl.addEventListener('input', () => {
+    clearTimeout(timer);
+    const q = inputEl.value.trim();
+    selIdx = -1;
+    document.getElementById('btnClearSearch').style.display = q ? '' : 'none';
+    if (q.length < 2) { cerrar(); document.getElementById('panelCatalogo').style.display = ''; return; }
+    document.getElementById('panelCatalogo').style.display = 'none';
+    spinnerEl.style.setProperty('display', 'flex', 'important');
+    timer = setTimeout(() => buscar(q), 220);
+});
 
-        const existente = carrito.find(i => i.id === id);
-        if (existente) {
-            if (existente.cantidad >= stock) {
-                mostrarAlerta('Stock insuficiente para ' + nombre, 'warning');
-                return;
-            }
-            existente.cantidad++;
-            existente.subtotal = +(existente.cantidad * precio).toFixed(2);
-        } else {
-            carrito.push({ id, nombre, presentacion, precio, stock, cantidad: 1, subtotal: +precio.toFixed(2) });
-        }
-        renderCarrito();
-    }
+inputEl.addEventListener('keydown', e => {
+    if (!resultados.length) return;
+    if      (e.key === 'ArrowDown')  { e.preventDefault(); moverSel(1); }
+    else if (e.key === 'ArrowUp')    { e.preventDefault(); moverSel(-1); }
+    else if (e.key === 'Enter')      { e.preventDefault(); elegirDrop(selIdx >= 0 ? selIdx : (resultados.length === 1 ? 0 : -1)); }
+    else if (e.key === 'Escape')     { clearSearch(); }
+});
 
-    function cambiarCantidad(id, delta) {
-        const item = carrito.find(i => i.id === id);
-        if (!item) return;
-        const nueva = item.cantidad + delta;
-        if (nueva < 1) { quitarItem(id); return; }
-        if (nueva > item.stock) { mostrarAlerta('Stock máximo: ' + item.stock, 'warning'); return; }
-        item.cantidad = nueva;
-        item.subtotal = +(nueva * item.precio).toFixed(2);
-        renderCarrito();
-    }
+document.addEventListener('click', e => { if (!e.target.closest('.position-relative')) cerrar(); });
 
-    function quitarItem(id) {
-        carrito = carrito.filter(i => i.id !== id);
-        renderCarrito();
-    }
+document.addEventListener('keydown', e => {
+    if (e.key === 'F2') { e.preventDefault(); inputEl.focus(); inputEl.select(); }
+});
 
-    function renderCarrito() {
-        const tbody = document.getElementById('carritoBody');
-        const emptyRow = document.getElementById('emptyCart');
+function clearSearch() {
+    inputEl.value = ''; cerrar();
+    document.getElementById('panelCatalogo').style.display = '';
+    document.getElementById('btnClearSearch').style.display = 'none';
+    inputEl.focus();
+}
 
-        if (!carrito.length) {
-            tbody.innerHTML = `<tr id="emptyCart"><td colspan="5" class="text-center text-muted py-4">
-                <i class="bi bi-cart-x fs-3 d-block mb-1"></i>Agregue productos al carrito</td></tr>`;
-            actualizarTotales();
-            return;
-        }
-
-        tbody.innerHTML = carrito.map(i => `
-            <tr>
-                <td class="ps-3">
-                    <div class="fw-semibold small">${escapeHtml(i.nombre)}</div>
-                    <div class="text-muted" style="font-size:0.75rem">${escapeHtml(i.presentacion)}</div>
-                </td>
-                <td class="text-center">
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-secondary" onclick="cambiarCantidad(${i.id}, -1)">-</button>
-                        <span class="btn btn-outline-secondary disabled px-3">${i.cantidad}</span>
-                        <button class="btn btn-outline-secondary" onclick="cambiarCantidad(${i.id}, 1)">+</button>
-                    </div>
-                </td>
-                <td class="text-end small">S/ ${i.precio.toFixed(2)}</td>
-                <td class="text-end fw-semibold">S/ ${i.subtotal.toFixed(2)}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-danger" onclick="quitarItem(${i.id})">
-                        <i class="bi bi-x"></i>
-                    </button>
-                </td>
-            </tr>`).join('');
-
-        actualizarTotales();
-    }
-
-    function actualizarTotales() {
-        const total = carrito.reduce((s, i) => s + i.subtotal, 0);
-        const subtotal = +(total / 1.18).toFixed(2);
-        const igv = +(total - subtotal).toFixed(2);
-        document.getElementById('totalVal').textContent = total.toFixed(2);
-        document.getElementById('subtotalVal').textContent = subtotal.toFixed(2);
-        document.getElementById('igvVal').textContent = igv.toFixed(2);
-    }
-
-    // Cambiar etiqueta RUC/DNI según tipo de comprobante
-    document.querySelectorAll('input[name="tipoComp"]').forEach(r => {
-        r.addEventListener('change', function () {
-            const label = document.getElementById('labelDocumento');
-            const input = document.getElementById('clienteRucDni');
-            if (this.value === '01') {
-                label.textContent = 'RUC del Cliente';
-                input.placeholder = '20000000000';
-                input.maxLength = 11;
-            } else {
-                label.textContent = 'DNI del Cliente';
-                input.placeholder = '00000000';
-                input.maxLength = 8;
-            }
+// ─── Catálogo ──────────────────────────────────────────────
+function cargarGrid() {
+    const grid = document.getElementById('gridProductos');
+    grid.innerHTML = '<div class="text-center py-4 text-muted w-100"><span class="spinner-border spinner-border-sm me-2"></span>Cargando...</div>';
+    fetch('/productos/api/todos')
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(data => renderGrid(data))
+        .catch(err => {
+            console.error(err);
+            grid.innerHTML = '<div class="text-danger text-center py-3 w-100"><i class="bi bi-exclamation-triangle me-1"></i>Error al cargar productos</div>';
         });
-    });
+}
 
-    function procesarVenta() {
-        if (!carrito.length) {
-            mostrarAlerta('Agregue al menos un producto al carrito.', 'danger');
-            return;
-        }
-        const tipoComp = document.querySelector('input[name="tipoComp"]:checked').value;
-        if (tipoComp === '01' && !document.getElementById('clienteRucDni').value) {
-            mostrarAlerta('Para factura es obligatorio el RUC del cliente.', 'danger');
-            return;
-        }
+function renderGrid(data) {
+    const grid = document.getElementById('gridProductos');
+    GRID_DATA = data;
+    const contador = document.getElementById('totalProductos');
+    if (contador) contador.textContent = data.length + ' productos';
+    if (!data.length) {
+        grid.innerHTML = '<div class="text-muted text-center py-4 w-100"><i class="bi bi-box-seam d-block mb-1" style="font-size:1.4rem;opacity:.2"></i>Sin productos</div>';
+        return;
+    }
+    grid.innerHTML = data.map((p, i) => {
+        const sc  = p.stock <= 0 ? 'pcs-zero' : (p.stock <= 5 ? 'pcs-low' : 'pcs-ok');
+        const st  = p.stock <= 0 ? 'Sin stock' : p.stock + ' uds';
+        const dis = p.stock <= 0 ? ' sin-stock' : '';
+        const enCar = carrito.find(c => c.id === p.id);
+        const qb  = enCar ? `<div class="pc-qty-badge">${enCar.cantidad}</div>` : '';
+        const ec  = enCar ? ' en-carrito' : '';
+        return `<div class="prod-card${dis}${ec}" id="pc-${p.id}" onclick="elegirCard(${i})">
+            ${qb}
+            <div class="pc-cat">${esc(p.categoria || '')}</div>
+            <div class="pc-name">${esc(p.nombre)}</div>
+            <div class="pc-sub">${[p.presentacion, p.concentracion].filter(Boolean).map(esc).join(' · ')}</div>
+            <div class="pc-price">S/ ${p.precio.toFixed(2)}</div>
+            <span class="pc-stock ${sc}">${st}</span>
+        </div>`;
+    }).join('');
+}
 
-        const payload = {
-            tipoComprobante: tipoComp,
-            clienteRucDni: document.getElementById('clienteRucDni').value,
-            clienteNombre: document.getElementById('clienteNombre').value,
-            observacion: document.getElementById('observacion').value,
-            detalles: carrito.map(i => ({ productoId: i.id, cantidad: i.cantidad }))
-        };
-
-        const btn = document.getElementById('btnProcesar');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
-
-        fetch('/ventas/procesar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
-            },
-            body: JSON.stringify(payload)
-        })
+// ─── Dropdown búsqueda ─────────────────────────────────────
+function buscar(q) {
+    fetch(`/productos/api/buscar?q=${encodeURIComponent(q)}`)
         .then(r => r.json())
-        .then(data => {
-            if (data.error) {
-                mostrarAlerta(data.error, 'danger');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Procesar Venta';
-            } else {
-                mostrarAlerta(`✓ Venta registrada. Comprobante: ${data.comprobante}`, 'success');
-                setTimeout(() => window.location.href = `/ventas/${data.ventaId}/comprobante`, 1500);
-            }
+        .then(data => { spinnerEl.style.setProperty('display', 'none', 'important'); resultados = data; selIdx = -1; renderDrop(data, q); })
+        .catch(() => spinnerEl.style.setProperty('display', 'none', 'important'));
+}
+function highlight(txt, q) {
+    if (!q || !txt) return esc(txt);
+    return esc(txt).replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'), '<mark>$1</mark>');
+}
+function stockBadge(s) {
+    return s <= 0 ? '<span class="sb-zero">Sin stock</span>' : (s <= 5 ? `<span class="sb-low">${s} uds ⚠</span>` : `<span class="sb-ok">${s} uds</span>`);
+}
+function renderDrop(data, q) {
+    if (!data.length) {
+        dropEl.innerHTML = `<div class="text-center text-muted py-4"><i class="bi bi-search d-block mb-1" style="font-size:1.3rem;opacity:.2"></i><span style="font-size:.8rem">Sin resultados para "<b>${esc(q)}</b>"</span></div>`;
+        dropEl.style.display = 'block'; return;
+    }
+    dropEl.innerHTML = data.map((p, i) => `
+        <div class="si" onmouseenter="selIdx=${i};resaltar()" onclick="elegirDrop(${i})">
+            <div style="flex:1;min-width:0">
+                <div class="si-nombre">${highlight(p.nombre, q)}</div>
+                <div class="si-sub">${esc(p.presentacion || '')}${p.concentracion ? ' · ' + esc(p.concentracion) : ''}${p.laboratorio ? ' · ' + esc(p.laboratorio) : ''}</div>
+            </div>
+            <div class="text-end flex-shrink-0">
+                <div class="si-price">S/ ${p.precio.toFixed(2)}</div>
+                <div class="si-stock">${stockBadge(p.stock)}</div>
+            </div>
+        </div>`).join('');
+    dropEl.style.display = 'block';
+}
+function moverSel(d) { selIdx = Math.max(0, Math.min(selIdx + d, resultados.length - 1)); resaltar(); }
+function resaltar() {
+    dropEl.querySelectorAll('.si').forEach((el, i) => el.classList.toggle('sel', i === selIdx));
+    const s = dropEl.querySelector('.sel'); if (s) s.scrollIntoView({ block: 'nearest' });
+}
+function elegirDrop(idx) {
+    if (idx < 0 || !resultados[idx]) return;
+    const p = resultados[idx];
+    if (p.stock <= 0) { alerta('Sin stock: ' + p.nombre, 'warning'); return; }
+    agregar(p.id, p.nombre, p.presentacion || '', p.concentracion || '', p.laboratorio || '', p.precio, p.stock);
+    clearSearch();
+}
+function elegirCard(idx) {
+    const p = GRID_DATA[idx]; if (!p) return;
+    if (p.stock <= 0) { alerta('Sin stock: ' + p.nombre, 'warning'); return; }
+    agregar(p.id, p.nombre, p.presentacion || '', p.concentracion || '', p.laboratorio || '', p.precio, p.stock);
+}
+function cerrar() { dropEl.style.display = 'none'; resultados = []; selIdx = -1; spinnerEl.style.setProperty('display', 'none', 'important'); }
+
+// ─── Carrito ───────────────────────────────────────────────
+function agregar(id, nombre, presentacion, concentracion, laboratorio, precio, stock) {
+    const ex = carrito.find(i => i.id === id);
+    if (ex) {
+        if (ex.cantidad >= stock) { alerta('Stock máximo: ' + stock, 'warning'); return; }
+        ex.cantidad++; ex.subtotal = +(ex.cantidad * precio).toFixed(2);
+    } else {
+        carrito.push({ id, nombre, presentacion, concentracion, laboratorio, precio, stock, cantidad: 1, subtotal: +precio.toFixed(2) });
+    }
+    render();
+    actualizarCardGrid(id);
+}
+function cambia(id, delta) {
+    const it = carrito.find(i => i.id === id); if (!it) return;
+    const n = it.cantidad + delta;
+    if (n < 1) { quitar(id); return; }
+    if (n > it.stock) { alerta('Máximo: ' + it.stock, 'warning'); return; }
+    it.cantidad = n; it.subtotal = +(n * it.precio).toFixed(2); render(); actualizarCardGrid(id);
+}
+function setCant(id, v) {
+    const n = parseInt(v), it = carrito.find(i => i.id === id);
+    if (!it || isNaN(n) || n < 1) return;
+    if (n > it.stock) { alerta('Máximo: ' + it.stock, 'warning'); return; }
+    it.cantidad = n; it.subtotal = +(n * it.precio).toFixed(2); render(); actualizarCardGrid(id);
+}
+function quitar(id) { carrito = carrito.filter(i => i.id !== id); render(); actualizarCardGrid(id); }
+function limpiarCarrito() {
+    if (carrito.length && !confirm('¿Vaciar el carrito?')) return;
+    const ids = carrito.map(i => i.id);
+    carrito = []; render();
+    ids.forEach(id => actualizarCardGrid(id));
+}
+
+/* Actualiza la tarjeta del grid para reflejar si está en carrito */
+function actualizarCardGrid(id) {
+    const el = document.getElementById('pc-' + id); if (!el) return;
+    const it = carrito.find(c => c.id === id);
+    const badge = el.querySelector('.pc-qty-badge');
+    if (it) {
+        el.classList.add('en-carrito');
+        if (badge) { badge.textContent = it.cantidad; }
+        else { const b = document.createElement('div'); b.className = 'pc-qty-badge'; b.textContent = it.cantidad; el.appendChild(b); }
+        el.classList.add('bump'); setTimeout(() => el.classList.remove('bump'), 200);
+    } else {
+        el.classList.remove('en-carrito');
+        if (badge) badge.remove();
+    }
+}
+
+function render() {
+    const tbody    = document.getElementById('carritoBody');
+    const badge    = document.getElementById('badgeItems');
+    const btnLimp  = document.getElementById('btnLimpiar');
+    const emptyEl  = document.getElementById('emptyCart');
+    const wrapEl   = document.getElementById('carritoWrap');
+    const totalUds = carrito.reduce((s, i) => s + i.cantidad, 0);
+    document.getElementById('contadorItems').textContent = totalUds + (totalUds === 1 ? ' item' : ' items');
+
+    if (!carrito.length) {
+        badge.style.display = 'none'; btnLimp.style.display = 'none';
+        emptyEl.style.display = ''; wrapEl.style.display = 'none';
+        totales(); calcVuelto(); return;
+    }
+
+    badge.textContent = carrito.length; badge.style.display = '';
+    btnLimp.style.display = '';
+    emptyEl.style.display = 'none'; wrapEl.style.display = '';
+
+    tbody.innerHTML = carrito.map(it => `
+        <tr class="row-in">
+            <td class="ps-2" style="max-width:120px">
+                <div class="fw-semibold text-truncate" style="font-size:.79rem">${esc(it.nombre)}</div>
+                <div class="text-muted" style="font-size:.66rem">${[it.presentacion, it.concentracion].filter(Boolean).map(esc).join(' · ')}</div>
+            </td>
+            <td class="text-center" style="width:98px">
+                <div class="input-group input-group-sm" style="width:88px;margin:0 auto">
+                    <button class="btn btn-outline-secondary px-1" type="button" onclick="cambia(${it.id},-1)"><i class="bi bi-dash"></i></button>
+                    <input type="number" class="form-control text-center fw-bold px-0"
+                           value="${it.cantidad}" min="1" max="${it.stock}"
+                           onchange="setCant(${it.id},this.value)" onclick="this.select()"
+                           style="min-width:0;font-size:.79rem"/>
+                    <button class="btn btn-outline-secondary px-1" type="button" onclick="cambia(${it.id},1)"><i class="bi bi-plus"></i></button>
+                </div>
+            </td>
+            <td class="text-end" style="width:72px;font-weight:700;color:#059669">S/ ${it.subtotal.toFixed(2)}</td>
+            <td style="width:26px">
+                <button class="btn btn-sm btn-link text-danger p-0" onclick="quitar(${it.id})"><i class="bi bi-x-lg"></i></button>
+            </td>
+        </tr>`).join('');
+
+    totales(); calcVuelto(); actualizarMontosRapidos();
+}
+
+function totales() {
+    const t   = carrito.reduce((s, i) => s + i.subtotal, 0);
+    const sub = +(t / 1.18).toFixed(2);
+    const igv = +(t - sub).toFixed(2);
+    document.getElementById('totalVal').textContent    = t.toFixed(2);
+    document.getElementById('subtotalVal').textContent = sub.toFixed(2);
+    document.getElementById('igvVal').textContent      = igv.toFixed(2);
+}
+
+// ─── Tipo comprobante ──────────────────────────────────────
+document.querySelectorAll('.tipo-btn').forEach(lbl => {
+    lbl.addEventListener('click', () => {
+        document.querySelectorAll('.tipo-btn').forEach(l => l.classList.remove('active'));
+        lbl.classList.add('active');
+        const v   = lbl.querySelector('input').value;
+        const inp = document.getElementById('clienteRucDni');
+        inp.placeholder = v === '01' ? 'RUC *' : 'DNI (opcional)';
+        inp.maxLength   = v === '01' ? 11 : 8;
+    });
+});
+
+// ─── Método de pago ────────────────────────────────────────
+function selMetodo(btn) {
+    document.querySelectorAll('.pago-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    metodoActual = btn.dataset.metodo;
+    document.getElementById('panelEfectivo').style.display = metodoActual === 'efectivo' ? '' : 'none';
+}
+
+// ─── Cálculo de vuelto ─────────────────────────────────────
+function calcVuelto() {
+    const total    = carrito.reduce((s, i) => s + i.subtotal, 0);
+    const recibido = parseFloat(document.getElementById('montoRecibido').value) || 0;
+    const disp     = document.getElementById('vueltoDisplay');
+    if (!total || !recibido) {
+        disp.className = 'vuelto-display';
+        disp.innerHTML = '<span class="text-muted" style="font-size:.8rem">—</span>';
+        return;
+    }
+    const vuelto = +(recibido - total).toFixed(2);
+    if (vuelto < 0) {
+        disp.className = 'vuelto-display vuelto-neg';
+        disp.innerHTML = `<span style="font-size:.85rem">Faltan S/ ${Math.abs(vuelto).toFixed(2)}</span>`;
+    } else {
+        disp.className = 'vuelto-display vuelto-ok';
+        disp.innerHTML = `<span style="font-size:.95rem">S/ ${vuelto.toFixed(2)}</span>`;
+    }
+}
+
+/* Botones de monto rápido (redondeo al múltiplo útil más cercano) */
+function actualizarMontosRapidos() {
+    const total = carrito.reduce((s, i) => s + i.subtotal, 0);
+    if (!total) return;
+    const container = document.getElementById('montosRapidos');
+    const candidatos = [10, 20, 50, 100, 200, 500];
+    const opciones = [total, ...candidatos.map(m => Math.ceil(total / m) * m)]
+        .filter((v, i, a) => v >= total - 0.001 && a.indexOf(v) === i)
+        .slice(0, 5);
+    container.innerHTML = opciones.map(v =>
+        `<button class="monto-rapido" onclick="setMonto(${v.toFixed(2)})">S/ ${v.toFixed(2)}</button>`
+    ).join('');
+}
+function setMonto(v) {
+    document.getElementById('montoRecibido').value = parseFloat(v).toFixed(2);
+    calcVuelto();
+}
+
+// ─── Procesar venta ────────────────────────────────────────
+function procesarVenta() {
+    if (!carrito.length) { alerta('Agrega al menos un producto.', 'danger'); return; }
+    const tipo = document.querySelector('input[name="tipoComp"]:checked').value;
+    const ruc  = document.getElementById('clienteRucDni').value.trim();
+    if (tipo === '01' && !ruc) { alerta('El RUC es obligatorio para facturas.', 'danger'); return; }
+    if (metodoActual === 'efectivo') {
+        const total    = carrito.reduce((s, i) => s + i.subtotal, 0);
+        const recibido = parseFloat(document.getElementById('montoRecibido').value) || 0;
+        if (recibido > 0 && recibido < total - 0.001) { alerta('El monto recibido es insuficiente.', 'danger'); return; }
+    }
+    const btn = document.getElementById('btnProcesar');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+    fetch('/ventas/procesar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', [CSRF_HEADER]: CSRF_TOKEN },
+        body: JSON.stringify({
+            tipoComprobante: tipo,
+            clienteRucDni:   ruc,
+            clienteNombre:   document.getElementById('clienteNombre').value.trim(),
+            detalles:        carrito.map(i => ({ productoId: i.id, cantidad: i.cantidad }))
         })
-        .catch(() => {
-            mostrarAlerta('Error de conexión. Intente nuevamente.', 'danger');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Procesar Venta';
-        });
-    }
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.error) { alerta(d.error, 'danger'); btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Cobrar'; }
+        else { alerta('✓ ' + d.comprobante + ' registrado', 'success'); setTimeout(() => window.location.href = `/ventas/${d.ventaId}/comprobante`, 1000); }
+    })
+    .catch(() => { alerta('Error de conexión.', 'danger'); btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Cobrar'; });
+}
 
-    function mostrarAlerta(msg, tipo) {
-        const el = document.getElementById('mensajeVenta');
-        el.className = `alert alert-${tipo}`;
-        el.textContent = msg;
-        el.classList.remove('d-none');
-        if (tipo !== 'danger') setTimeout(() => el.classList.add('d-none'), 4000);
-    }
+function alerta(msg, tipo) {
+    const el = document.getElementById('mensajeVenta');
+    el.className = `alert alert-${tipo} mb-2 py-2`; el.textContent = msg; el.classList.remove('d-none');
+    if (tipo !== 'danger') setTimeout(() => el.classList.add('d-none'), 4000);
+}
+function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
-    function escapeHtml(str) {
-        return String(str || '').replace(/[&<>"']/g, c => ({
-            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-        })[c]);
-    }
+inputEl.focus();
 </script>
 </body>
 </html>

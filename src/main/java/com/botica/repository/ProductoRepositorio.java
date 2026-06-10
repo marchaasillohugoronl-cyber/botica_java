@@ -32,4 +32,11 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long> {
 
     @Query("SELECT p FROM Producto p WHERE p.activo = true AND p.fechaVencimiento IS NOT NULL AND p.fechaVencimiento <= :fechaLimite")
     List<Producto> findPorVencer(@Param("fechaLimite") LocalDate fechaLimite);
+
+    @Query("SELECT p FROM Producto p WHERE p.activo = true AND p.categoria.id = :catId ORDER BY p.nombre ASC")
+    List<Producto> findByCategoriaId(@Param("catId") Long catId);
+
+    @Query("SELECT p FROM Producto p WHERE p.activo = true " +
+           "ORDER BY (SELECT COALESCE(SUM(dv.cantidad),0) FROM DetalleVenta dv WHERE dv.producto = p) DESC, p.nombre ASC")
+    org.springframework.data.domain.Page<Producto> findMasVendidos(org.springframework.data.domain.Pageable pageable);
 }

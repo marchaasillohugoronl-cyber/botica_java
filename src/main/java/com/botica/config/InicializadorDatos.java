@@ -7,8 +7,8 @@ import com.botica.model.Usuario;
 import com.botica.repository.CategoriaRepositorio;
 import com.botica.repository.ProductoRepositorio;
 import com.botica.repository.UsuarioRepositorio;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -16,15 +16,25 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Slf4j
 @Component
-@RequiredArgsConstructor
 public class InicializadorDatos implements CommandLineRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(InicializadorDatos.class);
 
     private final UsuarioRepositorio usuarioRepositorio;
     private final CategoriaRepositorio categoriaRepositorio;
     private final ProductoRepositorio productoRepositorio;
     private final PasswordEncoder codificadorPassword;
+
+    public InicializadorDatos(UsuarioRepositorio usuarioRepositorio,
+                               CategoriaRepositorio categoriaRepositorio,
+                               ProductoRepositorio productoRepositorio,
+                               PasswordEncoder codificadorPassword) {
+        this.usuarioRepositorio = usuarioRepositorio;
+        this.categoriaRepositorio = categoriaRepositorio;
+        this.productoRepositorio = productoRepositorio;
+        this.codificadorPassword = codificadorPassword;
+    }
 
     @Override
     public void run(String... args) {

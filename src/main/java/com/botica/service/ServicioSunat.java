@@ -3,8 +3,8 @@ package com.botica.service;
 import com.botica.model.Comprobante;
 import com.botica.model.Venta;
 import com.botica.model.DetalleVenta;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +31,10 @@ import java.util.zip.ZipOutputStream;
  * - RUC activo como emisor electrónico en SUNAT
  * - Credenciales SOL (usuario/clave)
  */
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class ServicioSunat {
+
+    private static final Logger log = LoggerFactory.getLogger(ServicioSunat.class);
 
     @Value("${sunat.ruc}")
     private String ruc;

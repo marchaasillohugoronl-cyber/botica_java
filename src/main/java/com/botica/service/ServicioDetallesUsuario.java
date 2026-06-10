@@ -2,7 +2,6 @@ package com.botica.service;
 
 import com.botica.model.Usuario;
 import com.botica.repository.UsuarioRepositorio;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,10 +11,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class ServicioDetallesUsuario implements UserDetailsService {
 
     private final UsuarioRepositorio usuarioRepositorio;
+
+    public ServicioDetallesUsuario(UsuarioRepositorio usuarioRepositorio) {
+        this.usuarioRepositorio = usuarioRepositorio;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

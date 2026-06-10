@@ -6,8 +6,8 @@ import com.botica.model.*;
 import com.botica.repository.ComprobanteRepositorio;
 import com.botica.repository.VentaRepositorio;
 import com.botica.repository.UsuarioRepositorio;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,16 +19,31 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class ServicioVentas {
+
+    private static final Logger log = LoggerFactory.getLogger(ServicioVentas.class);
 
     private final VentaRepositorio ventaRepositorio;
     private final ComprobanteRepositorio comprobanteRepositorio;
     private final UsuarioRepositorio usuarioRepositorio;
     private final ServicioProductos servicioProductos;
     private final ServicioSunat servicioSunat;
+    private final ServicioActivityLog activityLog;
+
+    public ServicioVentas(VentaRepositorio ventaRepositorio,
+                          ComprobanteRepositorio comprobanteRepositorio,
+                          UsuarioRepositorio usuarioRepositorio,
+                          ServicioProductos servicioProductos,
+                          ServicioSunat servicioSunat,
+                          ServicioActivityLog activityLog) {
+        this.ventaRepositorio = ventaRepositorio;
+        this.comprobanteRepositorio = comprobanteRepositorio;
+        this.usuarioRepositorio = usuarioRepositorio;
+        this.servicioProductos = servicioProductos;
+        this.servicioSunat = servicioSunat;
+        this.activityLog = activityLog;
+    }
 
     @Value("${sunat.serie-factura:F001}")
     private String serieFactura;
@@ -109,7 +124,18 @@ public class ServicioVentas {
         Comprobante comprobanteGuardado = comprobanteRepositorio.save(comprobanteEmitido);
 
         ventaGuardada.setComprobante(comprobanteGuardado);
-        return ventaRepositorio.save(ventaGuardada);
+        Venta resultado = ventaRepositorio.save(ventaGuardada);
+
+        String numComp = comprobanteGuardado.getSerie() + "-"
+            + String.format("%08d", comprobanteGuardado.getCorrelativo());
+        int numItems = dto.getDetalles().stream().mapToInt(d -> d.getCantidad()).sum();
+        activityLog.info("VENTAS",
+            "Venta registrada — " + numComp,
+            numItems + " producto(s) | Total S/ " + resultado.getTotal()
+                + (resultado.getClienteNombre() != null
+                   ? " | Cliente: " + resultado.getClienteNombre() : ""));
+
+        return resultado;
     }
 
     private Comprobante crearComprobante(Venta venta, String tipoComprobante) {

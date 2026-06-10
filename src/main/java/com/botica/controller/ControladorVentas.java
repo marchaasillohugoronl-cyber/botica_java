@@ -3,9 +3,9 @@ package com.botica.controller;
 import com.botica.dto.VentaDTO;
 import com.botica.dto.DetalleVentaDTO;
 import com.botica.model.Venta;
+import com.botica.service.ServicioCategorias;
 import com.botica.service.ServicioProductos;
 import com.botica.service.ServicioVentas;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,11 +17,18 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/ventas")
-@RequiredArgsConstructor
 public class ControladorVentas {
 
     private final ServicioVentas servicioVentas;
     private final ServicioProductos servicioProductos;
+    private final ServicioCategorias servicioCategorias;
+
+    public ControladorVentas(ServicioVentas servicioVentas, ServicioProductos servicioProductos,
+                              ServicioCategorias servicioCategorias) {
+        this.servicioVentas = servicioVentas;
+        this.servicioProductos = servicioProductos;
+        this.servicioCategorias = servicioCategorias;
+    }
 
     @GetMapping
     public String listar(Model model) {
@@ -31,7 +38,7 @@ public class ControladorVentas {
 
     @GetMapping("/nueva")
     public String nueva(Model model) {
-        model.addAttribute("productos", servicioProductos.listarActivos());
+        model.addAttribute("categorias", servicioCategorias.listarActivas());
         return "sales/new";
     }
 

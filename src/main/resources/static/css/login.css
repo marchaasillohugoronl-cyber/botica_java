@@ -1,0 +1,226 @@
+/* ══════════════════════════════════════════════════════════
+   Login — diseño split-screen profesional
+   ══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; }
+
+html, body { height: 100%; }
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    min-height: 100vh;
+    background: #f1f5f9;
+}
+
+/* ── Panel izquierdo ───────────────────────────────────────── */
+.lp-left {
+    width: 42%;
+    min-height: 100vh;
+    background: linear-gradient(155deg, #0d2137 0%, #0a3d62 60%, #0d2137 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* Grilla sutil de fondo */
+.lp-left::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        repeating-linear-gradient(0deg,
+            rgba(255,255,255,.025) 0, rgba(255,255,255,.025) 1px,
+            transparent 1px, transparent 44px),
+        repeating-linear-gradient(90deg,
+            rgba(255,255,255,.025) 0, rgba(255,255,255,.025) 1px,
+            transparent 1px, transparent 44px);
+    pointer-events: none;
+}
+
+/* Cruz médica decorativa */
+.lp-left::after {
+    content: '+';
+    position: absolute;
+    bottom: -2rem;
+    right: -1rem;
+    font-size: 18rem;
+    font-weight: 900;
+    color: rgba(255,255,255,.03);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+}
+
+.lp-top { position: relative; z-index: 1; }
+.lp-center { position: relative; z-index: 1; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 2rem 0; }
+.lp-bottom { position: relative; z-index: 1; }
+
+/* Logo en panel izquierdo */
+.lp-logo-box {
+    width: 88px; height: 88px;
+    background: rgba(255,255,255,.1);
+    border: 1.5px solid rgba(255,255,255,.18);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.5rem;
+    overflow: hidden;
+}
+.lp-logo-img { width: 68px; height: 68px; object-fit: contain; border-radius: 12px; }
+.lp-logo-icon { font-size: 2.4rem; color: rgba(255,255,255,.9); }
+
+.lp-farmacia-name {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -.4px;
+    line-height: 1.1;
+}
+.lp-farmacia-sub {
+    font-size: .82rem;
+    color: rgba(186,211,244,.7);
+    margin-top: .5rem;
+    font-weight: 400;
+    letter-spacing: .2px;
+}
+
+.lp-divider {
+    width: 40px; height: 2px;
+    background: rgba(255,255,255,.2);
+    margin: 1.5rem auto;
+    border-radius: 2px;
+}
+
+.lp-features { list-style: none; padding: 0; text-align: left; display: inline-flex; flex-direction: column; gap: .6rem; }
+.lp-features li {
+    display: flex; align-items: center; gap: .6rem;
+    font-size: .78rem; color: rgba(186,211,244,.75);
+}
+.lp-features li i { color: rgba(100,200,150,.8); font-size: .75rem; }
+
+.lp-badge-bottom {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 20px;
+    padding: .4rem .9rem;
+    font-size: .68rem;
+    color: rgba(148,163,184,.6);
+}
+
+/* ── Panel derecho ─────────────────────────────────────────── */
+.lp-right {
+    flex: 1;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2.5rem 2rem;
+    overflow-y: auto;
+}
+
+.login-box { width: 100%; max-width: 380px; }
+
+.login-title {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -.3px;
+}
+.login-subtitle {
+    font-size: .82rem;
+    color: #64748b;
+    margin-top: .3rem;
+    margin-bottom: 2rem;
+}
+
+/* Campos */
+.lf-group { margin-bottom: 1.1rem; }
+.lf-label {
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: #64748b;
+    margin-bottom: .35rem;
+    display: block;
+}
+.lf-field {
+    display: flex; align-items: center;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    transition: border-color .18s, box-shadow .18s, background .18s;
+    overflow: hidden;
+}
+.lf-field:focus-within {
+    border-color: #2563eb;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+.lf-icon { padding: 0 .9rem; color: #94a3b8; font-size: .95rem; flex-shrink: 0; }
+.lf-input {
+    flex: 1; border: none; outline: none; background: transparent;
+    color: #1e293b; font-size: .88rem;
+    padding: .72rem .5rem .72rem 0;
+}
+.lf-input::placeholder { color: #cbd5e1; }
+.lf-toggle { background: transparent; border: none; color: #94a3b8; padding: 0 .85rem; cursor: pointer; transition: color .15s; }
+.lf-toggle:hover { color: #64748b; }
+
+/* Alertas */
+.lf-alert {
+    border-radius: 8px; padding: .65rem .9rem;
+    font-size: .8rem; margin-bottom: 1rem;
+    display: flex; align-items: center; gap: .5rem;
+}
+.lf-alert-danger  { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+.lf-alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+
+/* Botón ingresar */
+.btn-login {
+    width: 100%; padding: .78rem;
+    background: #1d4ed8;
+    border: none; border-radius: 10px;
+    color: #fff; font-size: .9rem; font-weight: 700;
+    cursor: pointer; margin-top: .25rem;
+    transition: background .15s, box-shadow .15s;
+    display: flex; align-items: center; justify-content: center; gap: .5rem;
+}
+.btn-login:hover { background: #1e40af; box-shadow: 0 4px 18px rgba(29,78,216,.3); }
+.btn-login:disabled { opacity: .65; cursor: not-allowed; }
+
+/* Footer derecho */
+.lp-right-footer {
+    margin-top: 2.5rem;
+    text-align: center;
+    font-size: .69rem;
+    color: #94a3b8;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 1rem;
+}
+.lp-right-footer i { margin-right: .25rem; }
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 700px) {
+    body { flex-direction: column; background: #0d2137; }
+    .lp-left {
+        width: 100%; min-height: auto;
+        padding: 2rem 1.5rem 1.5rem;
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+    }
+    .lp-left::after { display: none; }
+    .lp-center { flex: 1; text-align: left; padding: 0; justify-content: flex-start; }
+    .lp-logo-box { width: 52px; height: 52px; border-radius: 12px; margin: 0; flex-shrink: 0; }
+    .lp-logo-img { width: 40px; height: 40px; }
+    .lp-logo-icon { font-size: 1.5rem; }
+    .lp-divider, .lp-features, .lp-bottom { display: none; }
+    .lp-farmacia-name { font-size: 1.3rem; }
+    .lp-right { flex: 1; border-radius: 20px 20px 0 0; padding: 2rem 1.5rem; }
+}

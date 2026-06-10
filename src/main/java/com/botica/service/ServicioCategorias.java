@@ -2,17 +2,19 @@ package com.botica.service;
 
 import com.botica.model.Categoria;
 import com.botica.repository.CategoriaRepositorio;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class ServicioCategorias {
 
     private final CategoriaRepositorio categoriaRepositorio;
+
+    public ServicioCategorias(CategoriaRepositorio categoriaRepositorio) {
+        this.categoriaRepositorio = categoriaRepositorio;
+    }
 
     public List<Categoria> listarActivas() {
         return categoriaRepositorio.findByActivoTrueOrderByNombreAsc();

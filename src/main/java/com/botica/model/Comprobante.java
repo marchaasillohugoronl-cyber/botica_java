@@ -1,9 +1,6 @@
 package com.botica.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,9 +8,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comprobantes")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Comprobante {
 
     @Id
@@ -27,7 +21,7 @@ public class Comprobante {
     private Integer correlativo;
 
     @Column(nullable = false, length = 2)
-    private String tipoComprobante; // 01=Factura, 03=Boleta
+    private String tipoComprobante;
 
     @Column(length = 11)
     private String clienteRuc;
@@ -53,7 +47,6 @@ public class Comprobante {
     @Column(length = 20)
     private String moneda = "PEN";
 
-    // Estado: PENDIENTE, ACEPTADO, RECHAZADO, ANULADO
     @Column(nullable = false, length = 20)
     private String estadoSunat = "PENDIENTE";
 
@@ -68,4 +61,57 @@ public class Comprobante {
 
     @Column(nullable = false)
     private LocalDateTime creadoEn = LocalDateTime.now();
+
+    public Comprobante() {}
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getSerie() { return serie; }
+    public void setSerie(String serie) { this.serie = serie; }
+
+    public Integer getCorrelativo() { return correlativo; }
+    public void setCorrelativo(Integer correlativo) { this.correlativo = correlativo; }
+
+    public String getTipoComprobante() { return tipoComprobante; }
+    public void setTipoComprobante(String tipoComprobante) { this.tipoComprobante = tipoComprobante; }
+
+    public String getClienteRuc() { return clienteRuc; }
+    public void setClienteRuc(String clienteRuc) { this.clienteRuc = clienteRuc; }
+
+    public String getClienteDni() { return clienteDni; }
+    public void setClienteDni(String clienteDni) { this.clienteDni = clienteDni; }
+
+    public String getClienteNombre() { return clienteNombre; }
+    public void setClienteNombre(String clienteNombre) { this.clienteNombre = clienteNombre; }
+
+    public LocalDate getFechaEmision() { return fechaEmision; }
+    public void setFechaEmision(LocalDate fechaEmision) { this.fechaEmision = fechaEmision; }
+
+    public BigDecimal getSubtotal() { return subtotal; }
+    public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
+
+    public BigDecimal getIgv() { return igv; }
+    public void setIgv(BigDecimal igv) { this.igv = igv; }
+
+    public BigDecimal getTotal() { return total; }
+    public void setTotal(BigDecimal total) { this.total = total; }
+
+    public String getMoneda() { return moneda; }
+    public void setMoneda(String moneda) { this.moneda = moneda; }
+
+    public String getEstadoSunat() { return estadoSunat; }
+    public void setEstadoSunat(String estadoSunat) { this.estadoSunat = estadoSunat; }
+
+    public String getXmlContent() { return xmlContent; }
+    public void setXmlContent(String xmlContent) { this.xmlContent = xmlContent; }
+
+    public String getCdrContent() { return cdrContent; }
+    public void setCdrContent(String cdrContent) { this.cdrContent = cdrContent; }
+
+    public String getSunatMensaje() { return sunatMensaje; }
+    public void setSunatMensaje(String sunatMensaje) { this.sunatMensaje = sunatMensaje; }
+
+    public LocalDateTime getCreadoEn() { return creadoEn; }
+    public void setCreadoEn(LocalDateTime creadoEn) { this.creadoEn = creadoEn; }
 }

@@ -1,9 +1,6 @@
 package com.botica.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,9 +9,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "ventas")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Venta {
 
     @Id
@@ -31,7 +25,6 @@ public class Venta {
     @Column(length = 11)
     private String clienteRucDni;
 
-    // 01=Factura, 03=Boleta
     @Column(nullable = false, length = 2)
     private String tipoComprobante = "03";
 
@@ -44,7 +37,6 @@ public class Venta {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal total = BigDecimal.ZERO;
 
-    // PENDIENTE, COMPLETADA, ANULADA
     @Column(nullable = false, length = 20)
     private String estado = "COMPLETADA";
 
@@ -60,4 +52,45 @@ public class Venta {
     @OneToOne
     @JoinColumn(name = "comprobante_id")
     private Comprobante comprobante;
+
+    public Venta() {}
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+
+    public String getClienteNombre() { return clienteNombre; }
+    public void setClienteNombre(String clienteNombre) { this.clienteNombre = clienteNombre; }
+
+    public String getClienteRucDni() { return clienteRucDni; }
+    public void setClienteRucDni(String clienteRucDni) { this.clienteRucDni = clienteRucDni; }
+
+    public String getTipoComprobante() { return tipoComprobante; }
+    public void setTipoComprobante(String tipoComprobante) { this.tipoComprobante = tipoComprobante; }
+
+    public BigDecimal getSubtotal() { return subtotal; }
+    public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
+
+    public BigDecimal getIgv() { return igv; }
+    public void setIgv(BigDecimal igv) { this.igv = igv; }
+
+    public BigDecimal getTotal() { return total; }
+    public void setTotal(BigDecimal total) { this.total = total; }
+
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+
+    public String getObservacion() { return observacion; }
+    public void setObservacion(String observacion) { this.observacion = observacion; }
+
+    public LocalDateTime getFechaVenta() { return fechaVenta; }
+    public void setFechaVenta(LocalDateTime fechaVenta) { this.fechaVenta = fechaVenta; }
+
+    public List<DetalleVenta> getDetalles() { return detalles; }
+    public void setDetalles(List<DetalleVenta> detalles) { this.detalles = detalles; }
+
+    public Comprobante getComprobante() { return comprobante; }
+    public void setComprobante(Comprobante comprobante) { this.comprobante = comprobante; }
 }

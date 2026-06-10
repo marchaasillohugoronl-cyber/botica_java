@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: layout(~{::title}, ~{::section})}">
+<head><title>Configuración</title></head>
+<body>
+<section>
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title"><i class="bi bi-gear-fill me-2"></i>Configuración</h1>
+            <p class="text-muted mb-0" style="font-size:.82rem">Personaliza tu farmacia y gestiona el equipo</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3" id="cfgTabs">
+        <li class="nav-item">
+            <a class="nav-link" id="tab-farmacia" href="#" onclick="switchTab('farmacia',this)">
+                <i class="bi bi-building me-1"></i>Farmacia
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tab-usuarios" href="#" onclick="switchTab('usuarios',this)">
+                <i class="bi bi-people me-1"></i>Usuarios
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tab-actividad" href="#" onclick="switchTab('actividad',this)">
+                <i class="bi bi-activity me-1"></i>Actividad
+                <span class="badge text-bg-danger ms-1 d-none" id="badgeNuevos"></span>
+            </a>
+        </li>
+    </ul>
+
+    <!-- ══ TAB: Farmacia ══════════════════════════════════════════════ -->
+    <div id="pnl-farmacia" class="cfg-pnl">
+        <div class="row g-3">
+
+            <!-- Info de farmacia -->
+            <div class="col-lg-7">
+                <div class="card">
+                    <div class="card-header fw-semibold">
+                        <i class="bi bi-info-circle me-2 text-primary"></i>Información general
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/configuracion/farmacia}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Nombre de la farmacia <span class="text-danger">*</span></label>
+                                <input type="text" name="farmaciaName" class="form-control"
+                                       th:value="${config.farmaciaName}" required maxlength="100"
+                                       placeholder="Ej. Botica San Juan"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Eslogan / Subtítulo</label>
+                                <input type="text" name="farmaciaSubtitle" class="form-control"
+                                       th:value="${config.farmaciaSubtitle}" maxlength="150"
+                                       placeholder="Ej. Tu salud es nuestra prioridad"/>
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-sm-6">
+                                    <label class="form-label fw-semibold">RUC</label>
+                                    <input type="text" name="ruc" class="form-control"
+                                           th:value="${config.ruc}" maxlength="11" placeholder="20XXXXXXXXX"/>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label fw-semibold">Teléfono</label>
+                                    <input type="text" name="telefono" class="form-control"
+                                           th:value="${config.telefono}" maxlength="20" placeholder="01 XXX XXXX"/>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Dirección</label>
+                                <input type="text" name="direccion" class="form-control"
+                                       th:value="${config.direccion}" maxlength="200"
+                                       placeholder="Av. Principal 123, Lima"/>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i>Guardar cambios
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logo -->
+            <div class="col-lg-5">
+                <div class="card">
+                    <div class="card-header fw-semibold">
+                        <i class="bi bi-image me-2 text-primary"></i>Logo de la farmacia
+                    </div>
+                    <div class="card-body">
+                        <!-- Preview -->
+                        <div class="logo-preview mb-3">
+                            <div class="lp-box" id="logoPreviewBox">
+                                <img th:if="${logoUrl}" th:src="${logoUrl}" id="logoImg"
+                                     alt="Logo actual" class="logo-preview-img"/>
+                                <div th:if="${logoUrl == null}" id="logoPlaceholder" class="logo-placeholder">
+                                    <i class="bi bi-image text-muted" style="font-size:2rem"></i>
+                                    <div class="text-muted mt-1" style="font-size:.78rem">Sin logo</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Upload form -->
+                        <form th:action="@{/configuracion/logo}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <div class="mb-2">
+                                <input type="file" name="logoFile" id="logoFile"
+                                       class="form-control form-control-sm"
+                                       accept="image/png,image/jpeg,image/webp"
+                                       onchange="previewLogo(this)"/>
+                                <div class="form-text">PNG, JPG o WebP. Recomendado: fondo transparente (PNG).</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm me-1">
+                                <i class="bi bi-upload me-1"></i>Subir logo
+                            </button>
+                            <form th:if="${logoUrl != null}" th:action="@{/configuracion/logo/eliminar}"
+                                  method="post" class="d-inline"
+                                  onsubmit="return confirm('¿Eliminar el logo actual?')">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash3 me-1"></i>Quitar
+                                </button>
+                            </form>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Vista previa en sidebar -->
+                <div class="card mt-3">
+                    <div class="card-header fw-semibold" style="font-size:.82rem">
+                        <i class="bi bi-eye me-2 text-primary"></i>Vista previa en el sistema
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="preview-sidebar">
+                            <div class="ps-brand">
+                                <div class="ps-logo-wrap">
+                                    <img th:if="${logoUrl}" th:src="${logoUrl}" alt="logo" class="ps-logo-img"/>
+                                    <i th:if="${logoUrl == null}" class="bi bi-capsule-pill ps-logo-icon"></i>
+                                </div>
+                                <div>
+                                    <div class="ps-name" th:text="${config.farmaciaName}"></div>
+                                    <div class="ps-sub" th:text="${config.farmaciaSubtitle}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apariencia / Tema del menú -->
+                <div class="card mt-3">
+                    <div class="card-header fw-semibold" style="font-size:.82rem">
+                        <i class="bi bi-palette me-2 text-primary"></i>Apariencia del menú lateral
+                    </div>
+                    <div class="card-body p-3">
+                        <p class="text-muted mb-3" style="font-size:.78rem">
+                            Elige el color del panel de navegación. Se guarda en este dispositivo.
+                        </p>
+                        <div class="theme-opts">
+                            <div class="theme-opt" data-theme="dark"   style="--tc:#0f172a">
+                                <div class="to-swatch"></div><span>Oscuro</span>
+                            </div>
+                            <div class="theme-opt" data-theme="blue"   style="--tc:#1e3a5f">
+                                <div class="to-swatch"></div><span>Azul</span>
+                            </div>
+                            <div class="theme-opt" data-theme="green"  style="--tc:#14532d">
+                                <div class="to-swatch"></div><span>Verde</span>
+                            </div>
+                            <div class="theme-opt" data-theme="purple" style="--tc:#3b0764">
+                                <div class="to-swatch"></div><span>Violeta</span>
+                            </div>
+                            <div class="theme-opt" data-theme="slate"  style="--tc:#334155">
+                                <div class="to-swatch"></div><span>Gris</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ══ TAB: Usuarios ══════════════════════════════════════════════ -->
+    <div id="pnl-usuarios" class="cfg-pnl" style="display:none">
+        <div class="row g-3">
+
+            <!-- Lista de usuarios -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-people me-2 text-primary"></i>Equipo de trabajo</span>
+                        <span class="badge text-bg-secondary" th:text="${#lists.size(usuarios)} + ' usuarios'"></span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th class="ps-3">Nombre</th>
+                                <th>Usuario</th>
+                                <th>Rol</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="u : ${usuarios}">
+                                <td class="ps-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="usr-avatar" th:text="${#strings.substring(u.nombre,0,1).toUpperCase()}">U</div>
+                                        <div>
+                                            <div class="fw-semibold" th:text="${u.nombre}" style="font-size:.84rem"></div>
+                                            <div class="text-muted" th:text="${u.email}" style="font-size:.71rem"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-muted" th:text="${u.username}" style="font-size:.82rem"></td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${u.rol.name() == 'ADMIN'} ? 'text-bg-primary' : 'text-bg-secondary'"
+                                          th:text="${u.rol.name() == 'ADMIN'} ? 'Administrador' : 'Vendedor'">
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span th:if="${u.activo}" class="badge text-bg-success">Activo</span>
+                                    <span th:if="${!u.activo}" class="badge text-bg-danger">Inactivo</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex gap-1 justify-content-center">
+                                        <!-- Toggle activo/inactivo (no para el propio admin) -->
+                                        <form th:if="${u.rol.name() != 'ADMIN'}"
+                                              th:action="@{/configuracion/usuarios/{id}/toggle(id=${u.id})}"
+                                              method="post" class="d-inline">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                            <button type="submit"
+                                                    th:class="${u.activo} ? 'btn btn-sm btn-outline-warning' : 'btn btn-sm btn-outline-success'"
+                                                    th:title="${u.activo} ? 'Desactivar' : 'Activar'">
+                                                <i th:class="${u.activo} ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i>
+                                            </button>
+                                        </form>
+                                        <!-- Reset password -->
+                                        <button class="btn btn-sm btn-outline-secondary"
+                                                th:if="${u.rol.name() != 'ADMIN'}"
+                                                th:onclick="'abrirResetPwd(' + ${u.id} + ',\'' + ${u.nombre} + '\')'"
+                                                title="Cambiar contraseña">
+                                            <i class="bi bi-key"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agregar vendedor -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header fw-semibold">
+                        <i class="bi bi-person-plus me-2 text-primary"></i>Nuevo vendedor
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/configuracion/usuarios/nuevo}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <div class="mb-2">
+                                <label class="form-label form-label-sm fw-semibold">Nombre completo <span class="text-danger">*</span></label>
+                                <input type="text" name="nombre" class="form-control form-control-sm"
+                                       placeholder="Ej. María García" required maxlength="100"/>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label form-label-sm fw-semibold">Usuario <span class="text-danger">*</span></label>
+                                <input type="text" name="username" class="form-control form-control-sm"
+                                       placeholder="Ej. mgarcia" required maxlength="50"
+                                       pattern="[a-zA-Z0-9._-]+" title="Solo letras, números, puntos, guiones"/>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label form-label-sm fw-semibold">Email</label>
+                                <input type="email" name="email" class="form-control form-control-sm"
+                                       placeholder="correo@ejemplo.com" maxlength="100"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label form-label-sm fw-semibold">Contraseña <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <input type="password" name="password" id="newPwd"
+                                           class="form-control" placeholder="Mínimo 6 caracteres"
+                                           required minlength="6"/>
+                                    <button class="btn btn-outline-secondary" type="button"
+                                            onclick="toggleNewPwd()"><i class="bi bi-eye" id="eyeNew"></i></button>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 p-2 rounded mb-3"
+                                 style="background:#eff6ff;border:1px solid #bfdbfe">
+                                <i class="bi bi-shield-check text-primary"></i>
+                                <span style="font-size:.75rem;color:#1d4ed8">Rol: <strong>Vendedor</strong></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm w-100">
+                                <i class="bi bi-person-plus me-1"></i>Crear vendedor
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ══ TAB: Actividad ════════════════════════════════════════ -->
+    <div id="pnl-actividad" class="cfg-pnl" style="display:none">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-semibold"><i class="bi bi-activity me-1 text-primary"></i>Registro de actividad</span>
+                    <span id="liveIndicator" class="live-dot live-on" title="En vivo"></span>
+                    <span id="liveLabel" class="text-muted" style="font-size:.72rem">En vivo</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div class="d-flex gap-1" id="filtroModulos">
+                        <button class="btn-log-filt active" data-mod="">Todos</button>
+                        <button class="btn-log-filt" data-mod="AUTH">Auth</button>
+                        <button class="btn-log-filt" data-mod="VENTAS">Ventas</button>
+                        <button class="btn-log-filt" data-mod="PRODUCTOS">Productos</button>
+                        <button class="btn-log-filt" data-mod="CONFIG">Config</button>
+                        <button class="btn-log-filt" data-mod="SISTEMA">Sistema</button>
+                    </div>
+                    <button id="btnToggleLive" class="btn btn-sm btn-outline-success"
+                            onclick="toggleLive()">
+                        <i class="bi bi-pause-fill" id="iconLive"></i>
+                        <span id="txtLive">Pausar</span>
+                    </button>
+                    <form th:action="@{/configuracion/actividad/limpiar}" method="post" class="d-inline">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <input type="hidden" name="dias" value="7"/>
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('¿Eliminar entradas de más de 7 días?')">
+                            <i class="bi bi-trash3 me-1"></i>Limpiar &gt;7 días
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="log-table-wrap">
+                <table class="table table-sm mb-0" id="logTable">
+                    <thead>
+                    <tr>
+                        <th style="width:130px">Hora</th>
+                        <th style="width:58px">Nivel</th>
+                        <th style="width:88px">Módulo</th>
+                        <th style="width:95px">Usuario</th>
+                        <th>Acción</th>
+                        <th>Detalle</th>
+                    </tr>
+                    </thead>
+                    <tbody id="logBody">
+                    <tr th:each="l : ${logs}"
+                        th:id="'lr-'+${l.id}"
+                        th:class="${l.nivel == 'ERROR'} ? 'log-row lr-error' : (${l.nivel == 'WARN'} ? 'log-row lr-warn' : 'log-row lr-info')">
+                        <td class="log-time" th:text="${#temporals.format(l.timestamp,'dd/MM HH:mm:ss')}"></td>
+                        <td>
+                            <span th:class="${l.nivel == 'ERROR'} ? 'badge text-bg-danger' : (${l.nivel == 'WARN'} ? 'badge text-bg-warning text-dark' : 'badge text-bg-success')"
+                                  th:text="${l.nivel}"></span>
+                        </td>
+                        <td><span class="log-mod-badge" th:classappend="' lmb-'+${l.modulo.toLowerCase()}"
+                                  th:text="${l.modulo}"></span></td>
+                        <td class="text-muted" style="font-size:.75rem" th:text="${l.usuario}"></td>
+                        <td class="fw-semibold" style="font-size:.79rem" th:text="${l.accion}"></td>
+                        <td class="text-muted" style="font-size:.74rem" th:text="${l.detalle}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(logs)}" id="logEmpty">
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox d-block mb-1" style="font-size:1.6rem;opacity:.2"></i>
+                            Sin actividad registrada aún
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center py-1 px-3"
+                 style="font-size:.7rem;color:#94a3b8">
+                <span>Mostrando <strong id="logCountNum">0</strong> entradas</span>
+                <span id="lastUpdate">—</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal reset password -->
+    <div class="modal fade" id="modalResetPwd" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="font-size:.9rem"><i class="bi bi-key me-2"></i>Nueva contraseña</h5>
+                    <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formResetPwd" method="post">
+                    <div class="modal-body">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <p class="mb-2" style="font-size:.82rem">Cambiar contraseña de <strong id="resetNombre"></strong></p>
+                        <input type="password" name="newPassword" id="resetPwdInput"
+                               class="form-control form-control-sm" placeholder="Nueva contraseña (mín. 6)" minlength="6" required/>
+                    </div>
+                    <div class="modal-footer py-2">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<style>
+/* ── Logo preview ──────────────────────────────────── */
+.lp-box {
+    border: 2px dashed #e2e8f0; border-radius: 12px;
+    height: 120px; display: flex; align-items: center; justify-content: center;
+    background: #f8fafc; overflow: hidden;
+}
+.logo-preview-img { max-height: 100px; max-width: 100%; object-fit: contain; }
+.logo-placeholder { text-align: center; }
+
+/* ── Sidebar preview ───────────────────────────────── */
+.preview-sidebar { background: #0f172a; border-radius: 10px; padding: 1rem; }
+.ps-brand { display: flex; align-items: center; gap: .75rem; }
+.ps-logo-wrap {
+    width: 38px; height: 38px; background: rgba(255,255,255,.1); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ps-logo-img { width: 28px; height: 28px; object-fit: contain; border-radius: 4px; }
+.ps-logo-icon { color: #fff; font-size: 1.1rem; }
+.ps-name { color: #f1f5f9; font-size: .82rem; font-weight: 700; }
+.ps-sub { color: #64748b; font-size: .65rem; }
+
+/* ── User avatar ───────────────────────────────────── */
+.usr-avatar {
+    width: 32px; height: 32px; border-radius: 50%; background: #eff6ff;
+    color: #2563eb; font-size: .75rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+/* ── Activity log ──────────────────────────────────── */
+.log-table-wrap { max-height: 520px; overflow-y: auto; }
+.log-table-wrap::-webkit-scrollbar { width: 5px; }
+.log-table-wrap::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 3px; }
+
+.log-row { transition: background .15s; }
+.lr-error { background: #fff5f5; }
+.lr-warn  { background: #fffbeb; }
+.lr-info  { background: #fff; }
+.log-row:hover { filter: brightness(.97); }
+
+.log-time { font-size: .72rem; color: #64748b; white-space: nowrap; font-family: monospace; }
+
+/* Módulo badges */
+.log-mod-badge { font-size: .65rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; text-transform: uppercase; letter-spacing: .3px; }
+.lmb-auth      { background: #dbeafe; color: #1d4ed8; }
+.lmb-ventas    { background: #dcfce7; color: #166534; }
+.lmb-productos { background: #cffafe; color: #0e7490; }
+.lmb-config    { background: #ede9fe; color: #5b21b6; }
+.lmb-sistema   { background: #f1f5f9; color: #475569; }
+
+/* Filtro botones */
+.btn-log-filt {
+    background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 20px;
+    font-size: .7rem; font-weight: 600; padding: 2px 10px; cursor: pointer; color: #475569;
+    transition: all .12s;
+}
+.btn-log-filt:hover { border-color: #94a3b8; }
+.btn-log-filt.active { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+
+/* Live dot */
+.live-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.live-on  { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.2); animation: livePulse 1.5s ease-in-out infinite; }
+.live-off { background: #94a3b8; }
+@keyframes livePulse { 0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,.2)} 50%{box-shadow:0 0 0 6px rgba(34,197,94,.08)} }
+
+/* New row animation */
+@keyframes logIn { from{opacity:0;background:#dbeafe} to{opacity:1} }
+.log-new { animation: logIn .6s ease forwards; }
+
+/* ── Theme picker (en configuración) ───────────────── */
+.theme-opts {
+    display: flex; gap: .75rem; flex-wrap: wrap;
+}
+.theme-opt {
+    display: flex; flex-direction: column; align-items: center;
+    gap: .35rem; cursor: pointer; font-size: .69rem; color: #64748b;
+    transition: color .15s;
+}
+.to-swatch {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--tc, #0f172a);
+    border: 2px solid transparent;
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.theme-opt:hover .to-swatch { transform: scale(1.08); box-shadow: 0 3px 10px rgba(0,0,0,.18); }
+.theme-opt.to-active .to-swatch { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.18); }
+.theme-opt.to-active { color: #3b82f6; font-weight: 700; }
+</style>
+
+<script>
+function switchTab(tab, el) {
+    document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+    document.querySelectorAll('.cfg-pnl').forEach(p => p.style.display = 'none');
+    el.classList.add('active');
+    document.getElementById('pnl-' + tab).style.display = '';
+    history.replaceState(null, '', '?tab=' + tab);
+}
+
+function previewLogo(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const box = document.getElementById('logoPreviewBox');
+        box.innerHTML = `<img src="${e.target.result}" class="logo-preview-img" alt="preview"/>`;
+    };
+    reader.readAsDataURL(file);
+}
+
+function toggleNewPwd() {
+    const i = document.getElementById('newPwd'), ico = document.getElementById('eyeNew');
+    i.type = i.type === 'password' ? 'text' : 'password';
+    ico.className = i.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+}
+
+function abrirResetPwd(id, nombre) {
+    document.getElementById('formResetPwd').action = '/configuracion/usuarios/' + id + '/reset-password';
+    document.getElementById('resetNombre').textContent = nombre;
+    document.getElementById('resetPwdInput').value = '';
+    new bootstrap.Modal(document.getElementById('modalResetPwd')).show();
+}
+
+// ── Activar tab al cargar ──────────────────────────────
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab') || 'farmacia';
+    const link = document.getElementById('tab-' + tab);
+    if (link) switchTab(tab, link);
+    else switchTab('farmacia', document.getElementById('tab-farmacia'));
+    updateLogCount();
+})();
+
+// ── Activity log — polling en tiempo real ──────────────
+let liveActive  = true;
+let lastEpochMs = Date.now() - 60000; // últimos 60 s al cargar
+let pollTimer   = null;
+let filtroMod   = '';
+let nuevosCount = 0;
+
+function startPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(fetchNewLogs, 4000);
+}
+function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+function toggleLive() {
+    liveActive = !liveActive;
+    document.getElementById('iconLive').className  = liveActive ? 'bi bi-pause-fill' : 'bi bi-play-fill';
+    document.getElementById('txtLive').textContent = liveActive ? 'Pausar' : 'Reanudar';
+    document.getElementById('btnToggleLive').className = liveActive
+        ? 'btn btn-sm btn-outline-success' : 'btn btn-sm btn-outline-secondary';
+    document.getElementById('liveIndicator').className = liveActive ? 'live-dot live-on' : 'live-dot live-off';
+    document.getElementById('liveLabel').textContent   = liveActive ? 'En vivo' : 'Pausado';
+    liveActive ? startPolling() : stopPolling();
+}
+
+function fetchNewLogs() {
+    fetch('/configuracion/actividad/api?since=' + lastEpochMs)
+        .then(r => r.json())
+        .then(entries => {
+            if (!entries.length) return;
+            const tbody = document.getElementById('logBody');
+            // Eliminar fila "sin actividad"
+            const empty = document.getElementById('logEmpty');
+            if (empty) empty.remove();
+
+            entries.forEach(e => {
+                if (document.getElementById('lr-' + e.id)) return; // ya existe
+                lastEpochMs = Math.max(lastEpochMs, e.epochMs + 1);
+                const tr = buildRow(e);
+                tbody.insertBefore(tr, tbody.firstChild);
+                nuevosCount++;
+            });
+
+            updateLogCount();
+            applyFilter(filtroMod);
+
+            // Badge en tab
+            if (nuevosCount > 0) {
+                const badge = document.getElementById('badgeNuevos');
+                badge.textContent = nuevosCount;
+                badge.classList.remove('d-none');
+            }
+            document.getElementById('lastUpdate').textContent =
+                'Última actualización: ' + new Date().toLocaleTimeString('es-PE');
+        })
+        .catch(() => {}); // silencioso
+}
+
+function buildRow(e) {
+    const levelClass = e.nivel === 'ERROR' ? 'lr-error' : (e.nivel === 'WARN' ? 'lr-warn' : 'lr-info');
+    const badgeClass = e.nivel === 'ERROR' ? 'badge text-bg-danger' : (e.nivel === 'WARN' ? 'badge text-bg-warning text-dark' : 'badge text-bg-success');
+    const dt = new Date(e.epochMs);
+    const timeStr = dt.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit'}) + ' '
+        + dt.toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const tr = document.createElement('tr');
+    tr.id = 'lr-' + e.id;
+    tr.className = 'log-row ' + levelClass + ' log-new';
+    tr.dataset.mod = e.modulo;
+    tr.innerHTML = `
+        <td class="log-time">${timeStr}</td>
+        <td><span class="${badgeClass}">${esc(e.nivel)}</span></td>
+        <td><span class="log-mod-badge lmb-${e.modulo.toLowerCase()}">${esc(e.modulo)}</span></td>
+        <td class="text-muted" style="font-size:.75rem">${esc(e.usuario)}</td>
+        <td class="fw-semibold" style="font-size:.79rem">${esc(e.accion)}</td>
+        <td class="text-muted" style="font-size:.74rem">${esc(e.detalle)}</td>`;
+    return tr;
+}
+
+// ── Filtro por módulo ──────────────────────────────────
+document.querySelectorAll('.btn-log-filt').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-log-filt').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filtroMod = btn.dataset.mod;
+        applyFilter(filtroMod);
+        // Limpiar badge al ver
+        nuevosCount = 0;
+        document.getElementById('badgeNuevos').classList.add('d-none');
+    });
+});
+
+function applyFilter(mod) {
+    document.querySelectorAll('#logBody tr.log-row').forEach(tr => {
+        tr.style.display = (!mod || tr.dataset.mod === mod) ? '' : 'none';
+    });
+    updateLogCount();
+}
+
+function updateLogCount() {
+    const visible = document.querySelectorAll('#logBody tr.log-row:not([style*="display: none"])').length;
+    document.getElementById('logCountNum').textContent = visible;
+}
+
+function esc(s) {
+    return String(s || '').replace(/[&<>"']/g,
+        c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Arrancar polling cuando el tab de actividad esté visible
+document.getElementById('tab-actividad').addEventListener('click', () => {
+    nuevosCount = 0;
+    document.getElementById('badgeNuevos').classList.add('d-none');
+    if (liveActive) startPolling();
+});
+
+// Etiquetar filas existentes con el módulo para el filtro
+document.querySelectorAll('#logBody tr.log-row').forEach(tr => {
+    const modCell = tr.querySelector('.log-mod-badge');
+    if (modCell) tr.dataset.mod = modCell.textContent.trim();
+});
+
+// ── Selector de temas ──────────────────────────────
+(function() {
+    const saved = localStorage.getItem('sidebarTheme') || 'dark';
+    document.querySelectorAll('.theme-opt').forEach(opt => {
+        if (opt.dataset.theme === saved) opt.classList.add('to-active');
+        opt.addEventListener('click', () => {
+            document.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('to-active'));
+            opt.classList.add('to-active');
+            if (typeof applyTheme === 'function') applyTheme(opt.dataset.theme);
+        });
+    });
+})();
+</script>
+</body>
+</html>

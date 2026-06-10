@@ -3,7 +3,8 @@ package com.botica.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,9 +26,10 @@ import java.util.UUID;
  *   - Local:      nombre de archivo  →  "uuid.jpg"
  *   - Cloudinary: URL completa       →  "https://res.cloudinary.com/..."
  */
-@Slf4j
 @Service
 public class ServicioAlmacenamiento {
+
+    private static final Logger log = LoggerFactory.getLogger(ServicioAlmacenamiento.class);
 
     @Value("${app.upload.dir:./uploads/productos}")
     private String directorioSubida;
