@@ -59,6 +59,7 @@ public class ControladorProductos {
     @PreAuthorize("hasRole('ADMIN')")
     public String guardar(@Valid @ModelAttribute Producto producto,
                           BindingResult resultado,
+                          @RequestParam(value = "categoriaId", required = false) Long categoriaId,
                           @RequestParam(value = "imagenFile", required = false) MultipartFile imagenFile,
                           Model model,
                           RedirectAttributes flash) {
@@ -67,7 +68,7 @@ public class ControladorProductos {
             return "products/form";
         }
         try {
-            servicioProductos.guardar(producto, imagenFile);
+            servicioProductos.guardar(producto, categoriaId, imagenFile);
             flash.addFlashAttribute("exito", "Producto guardado correctamente.");
         } catch (Exception e) {
             flash.addFlashAttribute("error", "Error al guardar: " + e.getMessage());

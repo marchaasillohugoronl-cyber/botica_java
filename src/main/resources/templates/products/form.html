@@ -37,11 +37,12 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Categoría</label>
-                                <select th:field="*{categoria.id}" class="form-select">
+                                <select name="categoriaId" class="form-select">
                                     <option value="">-- Sin categoría --</option>
                                     <option th:each="cat : ${categorias}"
                                             th:value="${cat.id}"
-                                            th:text="${cat.nombre}"></option>
+                                            th:text="${cat.nombre}"
+                                            th:selected="${producto.categoria != null and producto.categoria.id == cat.id}"></option>
                                 </select>
                             </div>
                             <div class="col-md-6">

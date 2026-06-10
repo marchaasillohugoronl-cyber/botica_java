@@ -1,6 +1,8 @@
 package com.botica.service;
 
+import com.botica.model.Categoria;
 import com.botica.model.Producto;
+import com.botica.repository.CategoriaRepositorio;
 import com.botica.repository.ProductoRepositorio;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +17,16 @@ import org.springframework.data.domain.PageRequest;
 public class ServicioProductos {
 
     private final ProductoRepositorio productoRepositorio;
+    private final CategoriaRepositorio categoriaRepositorio;
     private final ServicioAlmacenamiento servicioAlmacenamiento;
     private final ServicioActivityLog activityLog;
 
     public ServicioProductos(ProductoRepositorio productoRepositorio,
+                              CategoriaRepositorio categoriaRepositorio,
                               ServicioAlmacenamiento servicioAlmacenamiento,
                               ServicioActivityLog activityLog) {
         this.productoRepositorio = productoRepositorio;
+        this.categoriaRepositorio = categoriaRepositorio;
         this.servicioAlmacenamiento = servicioAlmacenamiento;
         this.activityLog = activityLog;
     }
@@ -48,7 +53,13 @@ public class ServicioProductos {
     }
 
     @Transactional
-    public Producto guardar(Producto producto, MultipartFile imagen) throws IOException {
+    public Producto guardar(Producto producto, Long categoriaId, MultipartFile imagen) throws IOException {
+        if (categoriaId != null) {
+            producto.setCategoria(categoriaRepositorio.findById(categoriaId).orElse(null));
+        } else {
+            producto.setCategoria(null);
+        }
+
         boolean esNuevo = producto.getId() == null;
         if (imagen != null && !imagen.isEmpty()) {
             if (producto.getImagenPath() != null) {
