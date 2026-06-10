@@ -46,9 +46,13 @@ public class ServicioAlmacenamiento {
     public void inicializar() {
         if (cloudinaryHabilitado && cloudinaryUrl != null && !cloudinaryUrl.isBlank()) {
             cloudinary = new Cloudinary(cloudinaryUrl);
-            log.info("Cloudinary habilitado — almacenamiento en la nube activo.");
+            log.info("[STORAGE] Cloudinary ACTIVO — imágenes en la nube.");
         } else {
-            log.info("Almacenamiento local activo (directorio: {})", directorioSubida);
+            Path dir = Paths.get(directorioSubida).toAbsolutePath().normalize();
+            log.info("[STORAGE] Almacenamiento LOCAL — directorio: {} | existe: {}",
+                dir, java.nio.file.Files.exists(dir));
+            log.info("[STORAGE] cloudinary.enabled={} | cloudinary.url vacío={}",
+                cloudinaryHabilitado, (cloudinaryUrl == null || cloudinaryUrl.isBlank()));
         }
     }
 
@@ -140,13 +144,14 @@ public class ServicioAlmacenamiento {
     // ── Almacenamiento local ─────────────────────────────────────────────────
 
     private String guardarEnLocal(MultipartFile archivo, String extension) throws IOException {
-        Path rutaSubida = Paths.get(directorioSubida);
+        Path rutaSubida = Paths.get(directorioSubida).toAbsolutePath().normalize();
         if (!Files.exists(rutaSubida)) {
             Files.createDirectories(rutaSubida);
         }
         String nombreArchivo = UUID.randomUUID() + "." + extension;
         Path destino = rutaSubida.resolve(nombreArchivo);
         Files.copy(archivo.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
+        log.info("[STORAGE] Imagen guardada localmente en: {}", destino);
         return nombreArchivo;
     }
 
