@@ -4,6 +4,7 @@
 <head><title>Nueva Venta</title></head>
 <body>
 <section>
+<div id="ventaWrap">
 
     <div class="page-header mb-2">
         <div class="d-flex align-items-center gap-2">
@@ -207,6 +208,25 @@
             </div>
         </div>
     </div>
+
+    <!-- ── Barra inferior mobile ────────────────────────────── -->
+    <div class="mob-bar d-lg-none" id="mobBar">
+        <div class="mob-bar-info">
+            <span class="mob-bar-count" id="mobBarCount">0 items</span>
+            <span class="mob-bar-total">S/ <span id="mobBarTotal">0.00</span></span>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm px-3"
+                    onclick="document.getElementById('panelDer').scrollIntoView({behavior:'smooth',block:'start'})">
+                <i class="bi bi-cart3"></i> Carrito
+            </button>
+            <button class="btn btn-light fw-bold btn-sm px-3" onclick="procesarVenta()">
+                <i class="bi bi-check-circle me-1"></i>Cobrar
+            </button>
+        </div>
+    </div>
+
+</div>
 </section>
 
 <style>
@@ -298,7 +318,7 @@
 @keyframes rowIn { from{opacity:0;transform:translateX(5px)} to{opacity:1;transform:translateX(0)} }
 mark { background:#fde68a; border-radius:2px; padding:0 2px; }
 
-/* ── Sticky right panel ────────────────────────────────── */
+/* ── Sticky right panel (desktop) ─────────────────────────── */
 @media (min-width:992px) {
     #panelDer { position:sticky; top:68px; max-height:calc(100vh - 88px); overflow-y:auto; scrollbar-width:thin; }
     #panelDer::-webkit-scrollbar { width:4px; }
@@ -308,6 +328,59 @@ mark { background:#fde68a; border-radius:2px; padding:0 2px; }
 /* ── Card-bump animation when product added ────────────── */
 @keyframes bump { 0%{transform:scale(1)} 40%{transform:scale(1.12)} 100%{transform:scale(1)} }
 .bump { animation:bump .18s ease; }
+
+/* ── Mobile action bar ─────────────────────────────────────── */
+.mob-bar {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 1040;
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    color: #fff;
+    padding: .75rem 1.1rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 -4px 20px rgba(0,0,0,.2);
+    border-top: 1px solid rgba(255,255,255,.12);
+}
+.mob-bar.visible { display: flex; }
+.mob-bar-info { display: flex; flex-direction: column; line-height: 1.1; }
+.mob-bar-count { font-size: .68rem; opacity: .78; }
+.mob-bar-total { font-size: 1.2rem; font-weight: 800; }
+
+/* ── Responsive (móvil < 992px) ───────────────────────────── */
+@media (max-width: 991.98px) {
+    #ventaWrap { padding-bottom: 88px; }
+
+    /* Grid 2 columnas en móvil */
+    .prod-grid { grid-template-columns: repeat(2, 1fr) !important; gap: .35rem; }
+    .prod-card  { padding: .5rem .5rem; }
+    .pc-name    { font-size: .72rem; }
+    .pc-sub     { font-size: .6rem; }
+    .pc-price   { font-size: .78rem; }
+    .pc-stock   { font-size: .58rem; }
+
+    /* Búsqueda más grande para touch */
+    #buscarProducto { font-size: .9rem; }
+
+    /* Carrito: touch targets más grandes */
+    #carritoTable td { padding: .5rem .4rem; }
+    #carritoTable .btn { min-width: 32px; min-height: 32px; }
+
+    /* Ocultar kbd hint en móvil */
+    .hint-kbd { display: none; }
+
+    /* Header más compacto */
+    .page-header { margin-bottom: .5rem !important; }
+}
+
+@media (max-width: 480px) {
+    .prod-grid { gap: .25rem; }
+    .pc-name { font-size: .68rem; }
+    .pago-btn { font-size: .7rem; padding: .28rem .5rem; }
+    .tipo-btn { font-size: .76rem !important; }
+}
 </style>
 
 <script th:inline="javascript">
@@ -503,6 +576,15 @@ function render() {
     const wrapEl   = document.getElementById('carritoWrap');
     const totalUds = carrito.reduce((s, i) => s + i.cantidad, 0);
     document.getElementById('contadorItems').textContent = totalUds + (totalUds === 1 ? ' item' : ' items');
+
+    // Barra inferior móvil
+    const mobBar = document.getElementById('mobBar');
+    if (mobBar) {
+        const totalMob = carrito.reduce((s, i) => s + i.subtotal, 0);
+        mobBar.classList.toggle('visible', carrito.length > 0);
+        document.getElementById('mobBarCount').textContent = totalUds + (totalUds === 1 ? ' item' : ' items');
+        document.getElementById('mobBarTotal').textContent = totalMob.toFixed(2);
+    }
 
     if (!carrito.length) {
         badge.style.display = 'none'; btnLimp.style.display = 'none';
